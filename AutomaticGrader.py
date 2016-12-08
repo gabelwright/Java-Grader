@@ -2,8 +2,11 @@ import subprocess
 import os
 import sys
 
-testfiles = ['test1.java']
-folder_directory = '/Users/m.wright/Desktop/Fraction'
+# Change this to true if the student files contain static methods.
+# Leave it as False if the student files contain a class
+contains_static_methods = False
+
+folder_directory = os.path.dirname(os.path.realpath(__file__))
 
 
 def writeJavaFile(file, testfile):
@@ -20,7 +23,8 @@ def writeJavaFile(file, testfile):
     javaFile = open('ActiveFile.java', 'w')
     javaFile.write(main_method)
     javaFile.write(txtContents)
-    # javaFile.write('}')
+    if contains_static_methods:
+        javaFile.write('}')
     javaFile.close()
 
 
@@ -36,30 +40,36 @@ def compileJava():
         subprocess.check_output(['javac', 'ActiveFile.java'])
         output += subprocess.check_output(['java', 'ActiveFile'])
 
+    delete_files()
+    return output
+
+
+def delete_files():
     try:
         if os.path.isfile('ActiveFile.class'):
             os.remove('ActiveFile.class')
         if os.path.isfile('ActiveFile.java'):
             os.remove('ActiveFile.java')
-        if os.path.isfile('Fraction.class'):
-            os.remove('Fraction.class')
+        for file in os.listdir(folder_directory):
+            if file.endswith('.class'):
+                os.remove(file)
     except:
         print("Could not delete files")
+    
 
-    return output
-
-
-def delete_files():
-    if os.path.isfile('ProgramResults.txt'):
-        os.remove('ProgramResults.txt')
-    if os.path.isfile('ActiveFile.java'):
-        os.remove('ActiveFile.java')
-    if os.path.isfile('Fraction.class'):
-        os.remove('Fraction.class')
+def get_test_files():
+    testfiles = []
+    for file in os.listdir(folder_directory):
+        if file.endswith('.java'):
+            fileList.append(file)
+    return testfiles
 
 
 fileList = []
+testfiles = get_test_files()
 delete_files()
+if os.path.isfile('ProgramResults.txt'):
+    os.remove('ProgramResults.txt')
 
 for file in os.listdir(folder_directory):
     if file.endswith('.txt'):
@@ -73,6 +83,7 @@ for file in fileList:
         writeJavaFile(file, test)
         outputFile += compileJava()
         outputFile += '\n'
+    print '%s Complete'%file
 
 finalSolutions = open('ProgramResults.txt', 'w')
 finalSolutions.write(outputFile)
