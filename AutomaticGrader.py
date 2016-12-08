@@ -12,8 +12,6 @@ folder_directory = os.path.dirname(os.path.realpath(__file__))
 def writeJavaFile(file, testfile):
     txtFile = open(file, 'r')
     txtContents = txtFile.read()
-    txtContents = txtContents.replace(
-        'public class Fraction', 'class Fraction')
     txtFile.close()
 
     mainTxt = open(testfile, 'r')
@@ -61,7 +59,7 @@ def get_test_files():
     testfiles = []
     for file in os.listdir(folder_directory):
         if file.endswith('.java'):
-            fileList.append(file)
+            testfiles.append(file)
     return testfiles
 
 
@@ -81,6 +79,7 @@ for file in fileList:
     outputFile += file + '\n'
     for test in testfiles:
         writeJavaFile(file, test)
+        outputFile += test + ':' + '\n'
         outputFile += compileJava()
         outputFile += '\n'
     print '%s Complete'%file
