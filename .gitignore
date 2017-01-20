@@ -2,3 +2,17 @@
 .vagrant/machines/default/virtualbox/action_provision
 /codin-site.db
 /import_data.py
+
+Vagrantfile
+
+.vagrant/machines/default/virtualbox/action_set_name
+
+.vagrant/machines/default/virtualbox/creator_uid
+
+.vagrant/machines/default/virtualbox/id
+
+.vagrant/machines/default/virtualbox/index_uuid
+
+.vagrant/machines/default/virtualbox/private_key
+
+.vagrant/machines/default/virtualbox/synced_folders
