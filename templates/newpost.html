@@ -1,0 +1,10 @@
+{% import 'post_block.html' as temp %}
+	
+{% extends 'base.html' %}
+
+{% block content %}
+
+	{{ temp.editpost(p,error_message,user) }}
+
+{% endblock %}
+	

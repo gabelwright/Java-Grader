@@ -1,0 +1,45 @@
+{# Header used for all site pages #}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Codin Blog</title>
+	<link href="https://fonts.googleapis.com/css?family=Sahitya|Source+Code+Pro" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main_styles.css') }}" />
+</head>
+<body>
+	<div class="container">
+	<div class="quarter">
+		<a href="/">
+			<img src="{{ url_for('static',filename='logo.png') }}" width="160">
+		</a>
+	</div>
+	<h1 class="half text-center">Codin Blog</h1>
+	<h4 class="quarter text-right">
+		{% if user %}
+		<a href="/welcome">Welcome {{user.username}}</a><br>
+		<a href="/logout">logout</a>
+		{% else %}
+		<a href="/login">Login</a> / <a href="/signup">Signup</a>
+		{% endif %}
+	</h4>
+	
+	<hr class="all top-bar">
+	<h3 class="all text-center">
+		<a href="/newpost">New Post</a><br>
+	</h3>
+	<hr class="all top-bar">
+	<h3 class="all text-center">All data from this database is periodically deleted!</h3>
+	
+
+		{% block content %}
+		{% endblock %}
+
+{# Footer used for all site pages #}
+
+	</div>
+	<footer class="text-center all">
+		Gabel Wright &#1065; AcronymCreations@gmail.com
+	</footer>
+</body>
+
+</html>

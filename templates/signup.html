@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	<h2 class="all">Please Register below:</h2>
+	<form method="post">
+		<div class="all">
+			Name:
+			<input class="" type="text" name="name" value="{{name}}">
+			{{error_username}}
+		</div>
+		<div class="all">
+			Username:
+			<input class="" type="text" name="username" value="{{username}}">
+			{{error_username}}
+		</div>
+		<div class="all">
+			Password:
+			<input type="password" name="password">
+			{{error_password}}
+		</div>
+		<div class="all">
+			Verify:
+			<input type="password" name="verify">
+			{{error_verify}}
+		</div>
+		<div class="all">
+			Email:
+			<input type="text" name="email" value="{{email}}">
+			<br>
+			{{error_email}}
+		</div><br>
+		<input type="submit" name="submit">
+	</form>
+
+{% endblock %}

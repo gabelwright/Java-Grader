@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+	
+	{% import 'post_block.html' as temp %}
+
+	{{ temp.summarypost(p,user) }}
+	
+	{{ temp.post(p,user) }}
+	
+
+{% endblock %}
