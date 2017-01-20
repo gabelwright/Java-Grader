@@ -1,2 +1,4 @@
 
 .vagrant/machines/default/virtualbox/action_provision
+/codin-site.db
+/import_data.py
