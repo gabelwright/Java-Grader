@@ -1,5 +1,13 @@
 {# All macros used in the site #}
 
+{% macro assignment(assign) -%}
+
+<h3 class="all"><a href="{{ url_for('assignView', assign_id=assign.id) }}">{{assign.name}}</a></h3>
+{{assign.desc}}
+
+{%- endmacro %}
+
+
 {# Used to display the actual post content of a blog post as well as all relevent buttons #}
 {% macro post(p,user) -%}
 

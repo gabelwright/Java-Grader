@@ -1,4 +1,3 @@
-{# This template is used for most pages in the site #}
 
 {% import 'post_block.html' as temp %}
 
@@ -6,9 +5,9 @@
 
 {% block content %}
 
-	{% for p in posts %}
+	{% for a in assign %}
 		
-		{{ temp.summarypost(p,user) }}
+		{{ temp.assignment(a) }}
 				
 	{% endfor %}
 

@@ -24,9 +24,12 @@ class Assignment(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
-    test1 = Column(String, nullable=False)
+    desc = Column(String)
+    test1 = Column(String)
     test2 = Column(String)
     test3 = Column(String)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
 
 
 class Post(Base):

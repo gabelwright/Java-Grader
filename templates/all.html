@@ -15,6 +15,20 @@
 		{% endfor %}
 	</ul>
 
+	<h2 class="all">Assignments</h2>
+	<ul>
+		{% for p in assign %}
+		<li>{{p.id}}:{{p.name}}</li>
+			<ul>
+				<li>{{p.desc}}</li>
+				<li>{{p.user.name}}</li>
+				<li>{{p.test1}}</li>
+				<li>{{p.test2}}</li>
+				<li>{{p.test3}}</li>
+			</ul>
+		{% endfor %}
+	</ul>
+
 	<h2 class="all">Posts</h2>
 	<ul>
 		{% for p in posts %}
