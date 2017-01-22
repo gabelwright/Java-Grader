@@ -236,30 +236,80 @@ def newAssign():
                                        params=params)
         else:
             params = {}
+            test_files = []
             title = request.form['title']
             descrip = request.form['desc']
             test1 = request.files['test1']
             test2 = request.files['test2']
             test3 = request.files['test3']
+            if test1:
+                test_files.append(test1)
+            if test2:
+                test_files.append(test2)
+            if test3:
+                test_files.append(test3)
+
             if title and descrip:
-                directory = '/vagrant/static/assignments/%s' % title.replace(' ', '_')
-                if not os.path.exists(directory):
-                    os.makedirs(directory)
-                assign = Assignment(name=title, desc=descrip, user=user)
-                if test1 and allowed_file(test1.filename):
-                    filename = secure_filename(test1.filename)
-                    test1.save(os.path.join(directory, filename))
-                    assign.test1 = directory + filename
-                else:
-                    params['title'] = title
-                    params['desc'] = descrip
-                    params['error'] = 'Test files must be either .txt or .java files'
-                    return render_template('admin.html',
-                                           user=user,
-                                           params=params)
+                assign = Assignment(name=title,
+                                    desc=descrip,
+                                    user=user)
+                if test_files:
+                    error_found = False
+                    for t in test_files:
+                        if not allowed_file(t.filename):
+                            error_found = True
+                            break
+                    if error_found:
+                        params['title'] = title
+                        params['desc'] = descrip
+                        params['error'] = 'Test files must be either .txt or .java files'
+                        return render_template('admin.html',
+                                               user=user,
+                                               params=params)
+                    directory = '/vagrant/static/assignments/%s' % secure_filename(title)
+                    if not os.path.exists(directory):
+                        os.makedirs(directory)
+                    i = 1
+                    for t in test_files:
+                        filename = secure_filename(t.filename)
+                        t.save(os.path.join(directory, filename))
+                        if i == 1:
+                            assign.test1 = directory + '/' + filename
+                        elif i == 2:
+                            assign.test2 = directory + '/' + filename
+                        elif i == 3:
+                            assign.test3 = directory + '/' + filename
+                        i = i + 1
                 session.add(assign)
                 session.commit()
                 return redirect(url_for('all'))
+
+
+
+
+                # if test1 and allowed_file(test1.filename):
+                #     filename = secure_filename(test1.filename)
+                #     test1.save(os.path.join(directory, filename))
+                #     assign.test1 = directory + filename
+                # else:
+                #     error_found = True
+                # if test2 and allowed_file(test2.filename):
+                #     filename = secure_filename(test2.filename)
+                #     test2.save(os.path.join(directory, filename))
+                #     assign.test2 = directory + filename
+                # else:
+                #     error_found = True
+                # if test3 and allowed_file(test3.filename):
+                #     filename = secure_filename(test3.filename)
+                #     test3.save(os.path.join(directory, filename))
+                #     assign.test3 = directory + filename
+                # else:
+                #     error_found = True
+                
+                # else:
+                #     session.add(assign)
+                #     session.commit()
+                #     return redirect(url_for('all'))
             else:
                 params['title'] = title
                 params['desc'] = descrip
@@ -289,7 +339,6 @@ def deleteAssign(assign_id):
             session.delete(assign)
             session.commit()
         return redirect(url_for('main'))
-
 
 
 @app.route('/all')
