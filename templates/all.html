@@ -22,10 +22,20 @@
 			<ul>
 				<li>{{p.desc}}</li>
 				<li>{{p.user.name}}</li>
-				<li>{{p.test1}}</li>
-				<li>{{p.test2}}</li>
-				<li>{{p.test3}}</li>
 			</ul>
+		{% endfor %}
+	</ul>
+
+	<h2 class="all">Tests</h2>
+	<ul>
+		{% for t in tests %}
+			<li>
+				{{t.id}}:{{t.assignment.name}}
+				<ul>
+					<li>{{t.name}}</li>
+					<li>{{t.location}}</li>
+				</ul>
+			</li>
 		{% endfor %}
 	</ul>
 

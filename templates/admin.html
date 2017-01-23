@@ -3,18 +3,11 @@
 {% block content %}
 	<h2 class="all">Add new Assignment:</h2>
 	<h3 class="all"><font color="red">{{params['error']}}</font></h3>
-	<form method="POST" enctype=multipart/form-data>
+	<form method="POST">
 		<h4 class="all ">Title:</h4>
 		<input type="text" name="title" value="{{params['title']}}"><br>
 		<h4 class="all">Description:</h4>
-		<textarea name="desc" rows="10" cols="50">{{params['desc']}}</textarea><br>
-		<h4>Test Case 1:</h4>
-		<input type="file" name="test1" accept=".txt,.java">
-		<h4>Test Case 2:</h4>
-		<input type="file" name="test2" accept=".txt,.java">
-		<h4>Test Case 3:</h4>
-		<input type="file" name="test3" accept=".txt,.java"><br>
-		
+		<textarea name="desc" rows="10" cols="50">{{params['desc']}}</textarea><br>		
 		<input type="submit" value="add assignment">
 	</form>
 

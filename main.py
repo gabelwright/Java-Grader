@@ -6,7 +6,7 @@ from flask import session as login_session
 from werkzeug.utils import secure_filename
 import random
 import string
-from db_setup import Base, User, Post, Assignment
+from db_setup import Base, User, Post, Assignment, Test
 import json
 import hashlib
 import os
@@ -23,7 +23,7 @@ DBsession = sessionmaker(bind=engine)
 session = DBsession()
 
 UPLOAD_FOLDER = '/assignments'
-ALLOWED_EXTENSIONS = set(['txt', 'java'])
+ALLOWED_EXTENSIONS = set(['txt'])
 
 hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfsnlghf389562349'
 
@@ -132,9 +132,11 @@ def newPost():
 def assignView(assign_id):
     user = check_for_user()
     assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
-    return render_template('.html',
+    tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
+    return render_template('assign.html',
                            user=user,
-                           assign=assign)
+                           assign=assign,
+                           tests=tests)
 
 
 @app.route('/edit/<int:post_id>', methods=['POST', 'GET'])
@@ -228,97 +230,61 @@ def signup():
 @app.route('/admin/new', methods=['GET', 'POST'])
 def newAssign():
     user = check_for_user()
-    if user and user.username == sudo_user:
-        if request.method == 'GET':
-                params = {}
-                return render_template('admin.html',
-                                       user=user,
-                                       params=params)
-        else:
-            params = {}
-            test_files = []
-            title = request.form['title']
-            descrip = request.form['desc']
-            test1 = request.files['test1']
-            test2 = request.files['test2']
-            test3 = request.files['test3']
-            if test1:
-                test_files.append(test1)
-            if test2:
-                test_files.append(test2)
-            if test3:
-                test_files.append(test3)
-
-            if title and descrip:
-                assign = Assignment(name=title,
-                                    desc=descrip,
-                                    user=user)
-                if test_files:
-                    error_found = False
-                    for t in test_files:
-                        if not allowed_file(t.filename):
-                            error_found = True
-                            break
-                    if error_found:
-                        params['title'] = title
-                        params['desc'] = descrip
-                        params['error'] = 'Test files must be either .txt or .java files'
-                        return render_template('admin.html',
-                                               user=user,
-                                               params=params)
-                    directory = '/vagrant/static/assignments/%s' % secure_filename(title)
-                    if not os.path.exists(directory):
-                        os.makedirs(directory)
-                    i = 1
-                    for t in test_files:
-                        filename = secure_filename(t.filename)
-                        t.save(os.path.join(directory, filename))
-                        if i == 1:
-                            assign.test1 = directory + '/' + filename
-                        elif i == 2:
-                            assign.test2 = directory + '/' + filename
-                        elif i == 3:
-                            assign.test3 = directory + '/' + filename
-                        i = i + 1
-                session.add(assign)
-                session.commit()
-                return redirect(url_for('all'))
-
-
-
-
-                # if test1 and allowed_file(test1.filename):
-                #     filename = secure_filename(test1.filename)
-                #     test1.save(os.path.join(directory, filename))
-                #     assign.test1 = directory + filename
-                # else:
-                #     error_found = True
-                # if test2 and allowed_file(test2.filename):
-                #     filename = secure_filename(test2.filename)
-                #     test2.save(os.path.join(directory, filename))
-                #     assign.test2 = directory + filename
-                # else:
-                #     error_found = True
-                # if test3 and allowed_file(test3.filename):
-                #     filename = secure_filename(test3.filename)
-                #     test3.save(os.path.join(directory, filename))
-                #     assign.test3 = directory + filename
-                # else:
-                #     error_found = True
-                
-                # else:
-                #     session.add(assign)
-                #     session.commit()
-                #     return redirect(url_for('all'))
-            else:
-                params['title'] = title
-                params['desc'] = descrip
-                params['error'] = 'Please fill in both fields before continuing.'
-                return render_template('admin.html',
-                                       user=user,
-                                       params=params)
-    else:
+    if not user or user.username != sudo_user:
         return redirect(url_for('main'))
+    if request.method == 'GET':
+            params = {}
+            return render_template('admin.html',
+                                   user=user,
+                                   params=params)
+    else:
+        params = {}
+        title = request.form['title']
+        descrip = request.form['desc']
+
+        if title and descrip:
+            assign = Assignment(name=title,
+                                desc=descrip,
+                                user=user)
+
+            session.add(assign)
+            session.commit()
+            return redirect(url_for('assignView',assign_id=assign.id))
+        else:
+            params['title'] = title
+            params['desc'] = descrip
+            params['error'] = 'Please fill in both fields before continuing.'
+            return render_template('admin.html',
+                                   user=user,
+                                   params=params)
+        
+
+@app.route('/assignment/<int:assign_id>/upload', methods=['POST'])
+def uploadTest(assign_id):
+    user = check_for_user()
+    if not user or user.username != sudo_user:
+        print 'error in user'
+        return redirect(url_for('assignView',assign_id=assign_id))
+        
+    if request.method == 'POST':
+        file = request.files['test_file']
+        name = request.form['name']
+        if not name or not file or not allowed_file(file.filename):
+            print 'error found'
+            return redirect(url_for('assignView',assign_id=assign_id))
+
+        directory = '/vagrant/static/assignments/%s' % secure_filename(str(assign_id))
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(directory, filename))
+        test = Test(name=name,
+                    location=directory+'/'+filename,
+                    assignment_id=assign_id,
+                    user=user)
+        session.add(test)
+        session.commit()
+        return redirect(url_for('assignView', assign_id=assign_id))
 
 
 @app.route('/admin/delete/<int:assign_id>', methods=['GET', 'POST'])
@@ -346,11 +312,13 @@ def all():
     users = session.query(User).all()
     assign = session.query(Assignment).all()
     posts = session.query(Post).all()
+    tests = session.query(Test).all()
 
     return render_template('all.html',
                            users=users,
                            posts=posts,
-                           assign=assign)
+                           assign=assign,
+                           tests=tests)
 
 
 

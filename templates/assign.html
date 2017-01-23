@@ -5,6 +5,34 @@
 	{% import 'post_block.html' as temp %}
 
 	{{ temp.assignment(assign) }}
+
+	{% if user.username == assign.user.username %}
+		<h3 class="all">Tests:</h3>
+		<ul>
+			{% for t in tests %}
+			<li>{{t.name}}</li>
+			{% endfor %}
+		</ul>
+		<h3 class="all">Add Test File:</h3>
+		<form class="all" method="POST" action="/assignment/{{assign.id}}/upload" enctype=multipart/form-data>
+			Name: <input type="text" name="name">
+			<input class="all" type="file" name="test_file" accept=".txt">
+			Allowed filetypes are .txt and .java<br>
+			<input type="submit" value="upload file">
+		</form>
+		
+		<hr class="all">
+		{# <form class="half" action="{{ url_for('editAssign', assign_id=assign.id) }}"> #}
+			{# <input type="submit" value="edit assignment"> #}
+		{# </form> #}
+		<form class="half text-right" action="{{ url_for('deleteAssign', assign_id=assign.id) }}">
+			<input type="submit" value="delete assignment">
+		</form>
+		
+		
+
+
+	{% endif %}
 	
 	
 	

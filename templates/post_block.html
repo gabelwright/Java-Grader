@@ -2,111 +2,11 @@
 
 {% macro assignment(assign) -%}
 
-<h3 class="all"><a href="{{ url_for('assignView', assign_id=assign.id) }}">{{assign.name}}</a></h3>
+<h2 class="all"><a href="{{ url_for('assignView', assign_id=assign.id) }}">{{assign.name}}</a></h2>
 {{assign.desc}}
 
 {%- endmacro %}
 
-
-{# Used to display the actual post content of a blog post as well as all relevent buttons #}
-{% macro post(p,user) -%}
-
-{% if user and p.user.username == user.username %}
-	<form action="/edit/{{p.id}}" class="half">
-		<input type="submit" value="edit" class="edit-button">
-	</form>
-	<form method="post" action="/delete/{{p.id}}" class="text-right half">
-		<input type="submit" value="delete" class="delete-button">
-	</form>
-	
-{% endif %}
-
-<hr class="all bottom-bar">
-
-{%- endmacro %}
-
-
-
-{# Used to display all comments for a blog post as well as all relevent buttons #}
-{%- macro comment(e,comments,user,comment_id) %}
-
-<h2 class="all title">Comments</h2>
-
-{% for c in comments %}
-	{% if comment_id == c.key().id() %}
-		<form method="post" class="half">
-			<textarea class="all" name="comment" rows="5" cols="35">{{c.comment}}</textarea>
-			<input type="submit" value="save">
-		</form>
-	{% else %}
-		<pre class="three-quarter comment">{{c.comment}}</pre>
-		<section class="quarter text-right">
-			Posted by {{c.posted_by}}<br>
-			{{c.created.strftime('%b %d, %Y')}}
-		</section>
-	{% endif %}
-
-	{% if user and c.posted_by == user.username and comment_id == 0 %}
-		
-		<form action="/{{e.key().id()}}/{{c.key().id()}}" class="third">
-			<input type="submit" value="edit" class="edit-button">
-		</form>
-		<section class="third text-center">{{ c.likes|length }} &#10084;</section>
-		<form method="post" action="/delete/comment/{{c.key().id()}}" class="text-right third">
-			<input type="submit" name="delete" value="delete" class="delete-button">
-		</form>
-		
-	{% elif user and user.username in c.likes and comment_id == 0 %}
-		
-		<form action="/like/comment/{{c.key().id()}}" method="post">
-			{{ c.likes|length }} &#10084;
-			<input class="like-button" type="submit" name="like" value="unlike">
-		</form>
-			
-	{% elif user and user.username not in c.likes and comment_id == 0 %}
-		
-		<form action="/like/comment/{{c.key().id()}}" method="post">
-			{{ c.likes|length }} &#10084;
-			<input class="like-button" type="submit" name="like" value="like">
-		</form>
-		
-	{% endif %}
-	<hr class="all bottom-bar">
-{% endfor %}
-
-
-
-{% if user and comment_id == 0  %}
-
-<form method="post" class="half">
-	<textarea class="all" name="comment" rows="5" cols="35"></textarea>
-	<input type="submit" value="comment" class="comment-button">
-</form>
-
-{% endif %}
-
-{%- endmacro %}
-
-
-
-
-
-{# Used to display just the title and summary of a post #}
-{%- macro summarypost(p,user) %}
-
-<section class="half title"><a href="/post/{{p.id}}/0">{{p.title}}</a></section> 
-<section class="half title text-right">
-	{{p.user.name}}
-</section> 
-<section class="summary three-quarter">
-	{{p.desc}}
-</section>
-<section class="quarter text-right">
-	{{p.user.username}}
-</section>
-<hr class="all bottom-bar">
-
-{%- endmacro %}
 
 
 

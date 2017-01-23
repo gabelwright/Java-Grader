@@ -25,9 +25,18 @@ class Assignment(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     desc = Column(String)
-    test1 = Column(String)
-    test2 = Column(String)
-    test3 = Column(String)
+    user_id = Column(Integer, ForeignKey('user.id'))
+    user = relationship(User)
+
+
+class Test(Base):
+    __tablename__ = 'test'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String(100), nullable=False)
+    location = Column(String(100), nullable=False)
+    assignment_id = Column(Integer, ForeignKey('assignment.id'))
+    assignment = relationship(Assignment)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 

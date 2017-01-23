@@ -49,6 +49,10 @@ footer{
 	padding-bottom: 30px;
 }
 
+ul{
+	margin: 5px;
+}
+
 .container{
 	display: flex;
 	flex-wrap: wrap;
