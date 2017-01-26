@@ -104,6 +104,11 @@ ul{
 .code{
 	background: #cccccc;
 	font-family: 'Source Code Pro', monospace;
+	padding: 20px;
+}
+
+.code-textbox{
+	margin-left:20px;
 }
 
 .comment{

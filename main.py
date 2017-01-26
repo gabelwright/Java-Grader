@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import session as login_session
 from werkzeug.utils import secure_filename
+from functools import wraps
 import random
 import string
 from db_setup import Base, User, Post, Assignment, Test
@@ -22,8 +23,9 @@ Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
 session = DBsession()
 
-UPLOAD_FOLDER = '/assignments'
+ASSIGN_FILE_PATH = '/vagrant/static/assignments/'
 ALLOWED_EXTENSIONS = set(['txt'])
+ADMIN_LIST = ['mgwright']
 
 hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfsnlghf389562349'
 
@@ -64,6 +66,29 @@ def check_password(password, user):
         return False
 
 
+def authenicate(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        print 'Method Decorated'
+        user = check_for_user()
+        if not user:
+            return redirect(url_for('login'))
+        return f(user,*args, **kwargs)
+    return wrapper
+
+
+def admin_only(f):
+    @wraps(f)
+    def wrapper(*args, **kwargs):
+        print 'admin decorator'
+        user = check_for_user()
+        if not user or user.username not in ADMIN_LIST:
+            return abort(400)
+        return f(user,*args, **kwargs)
+    return wrapper
+
+
+
 def make_salt():
     salt = ''.join(random.choice(
         string.ascii_uppercase + string.digits) for x in xrange(7))
@@ -75,20 +100,6 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-def delete_file(user):
-    directory = '%s%s' % (app.config['UPLOAD_FOLDER'], user.id)
-    print directory
-    # Checks if user already has a folder to store profile pic
-    # as well as if the folder is empty or not
-    if os.path.exists(directory) and os.listdir(directory):
-        print 'folder is not empty'
-        files = os.listdir(directory)
-        # Deletes any prevouis profile pictures
-        for file in files:
-            path = '%s/%s' % (directory, file)
-            os.remove(path)
-
-
 @app.route('/')
 def main():
     user = check_for_user()
@@ -98,39 +109,42 @@ def main():
                            assign=assign)
 
 
-@app.route('/newpost', methods=['GET', 'POST'])
-def newPost():
-    if request.method == 'GET':
-        user = check_for_user()
-        if not user:
-            return redirect(url_for('login'))
-        return render_template('newpost.html',
-                               user=user,
-                               p=None)
-    else:
-        print 'POST'
-        title = request.form['title']
-        post = request.form['post']
-        user_id = request.form['user_id']
-        print title, post, user_id
-        if title and post and user_id:
-            post = Post(title=title,
-                        desc=post,
-                        user_id=user_id)
-            session.add(post)
-            session.commit()
-            return redirect(url_for('main'))
-        else:
-            error = "All fields are required. Do not leave any blank."
-            return render_template('newpost.html',
-                                   user=user,
-                                   e=None,
-                                   error_message=error)
+# @app.route('/newpost', methods=['GET', 'POST'])
+# def newPost():
+#     if request.method == 'GET':
+#         user = check_for_user()
+#         if not user:
+#             return redirect(url_for('login'))
+#         return render_template('newpost.html',
+#                                user=user,
+#                                p=None)
+#     else:
+#         print 'POST'
+#         title = request.form['title']
+#         post = request.form['post']
+#         user_id = request.form['user_id']
+#         print title, post, user_id
+#         if title and post and user_id:
+#             post = Post(title=title,
+#                         desc=post,
+#                         user_id=user_id)
+#             session.add(post)
+#             session.commit()
+#             return redirect(url_for('main'))
+#         else:
+#             error = "All fields are required. Do not leave any blank."
+#             return render_template('newpost.html',
+#                                    user=user,
+#                                    e=None,
+#                                    error_message=error)
 
 
-@app.route('/assignment/<int:assign_id>')
-def assignView(assign_id):
-    user = check_for_user()
+@app.route('/assignment/<int:assign_id>', methods=['GET', 'POST'])
+@authenicate
+def assignView(user,assign_id):
+    # user = check_for_user()
+    # if not user:
+    #     return redirect(url_for('login'))
     assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
     tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
     return render_template('assign.html',
@@ -139,32 +153,32 @@ def assignView(assign_id):
                            tests=tests)
 
 
-@app.route('/edit/<int:post_id>', methods=['POST', 'GET'])
-def editPost(post_id):
-    post = session.query(Post).filter(Post.id == post_id).first()
-    if request.method == 'GET':
-        user = check_for_user()
-        if not user:
-            return redirect(url_for('postView', post_id=post_id))
-        return render_template('newpost.html',
-                               user=user,
-                               p=post)
-    else:
-        title = request.form['title']
-        des = request.form['post']
-        if title and des:
-            post.title = title
-            post.desc = des
-            session.commit()
-            return redirect(url_for('postView', post_id=post_id))
+# @app.route('/edit/<int:post_id>', methods=['POST', 'GET'])
+# def editPost(post_id):
+#     post = session.query(Post).filter(Post.id == post_id).first()
+#     if request.method == 'GET':
+#         user = check_for_user()
+#         if not user:
+#             return redirect(url_for('postView', post_id=post_id))
+#         return render_template('newpost.html',
+#                                user=user,
+#                                p=post)
+#     else:
+#         title = request.form['title']
+#         des = request.form['post']
+#         if title and des:
+#             post.title = title
+#             post.desc = des
+#             session.commit()
+#             return redirect(url_for('postView', post_id=post_id))
 
 
-@app.route('/delete/<int:post_id>', methods=['POST'])
-def deletePost(post_id):
-    post = session.query(Post).filter(Post.id == post_id).first()
-    session.delete(post)
-    session.commit()
-    return redirect(url_for('main'))
+# @app.route('/delete/<int:post_id>', methods=['POST'])
+# def deletePost(post_id):
+#     post = session.query(Post).filter(Post.id == post_id).first()
+#     session.delete(post)
+#     session.commit()
+#     return redirect(url_for('main'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -228,10 +242,8 @@ def signup():
 
 
 @app.route('/admin/new', methods=['GET', 'POST'])
-def newAssign():
-    user = check_for_user()
-    if not user or user.username != sudo_user:
-        return redirect(url_for('main'))
+@admin_only
+def newAssign(user):
     if request.method == 'GET':
             params = {}
             return render_template('admin.html',
@@ -259,13 +271,9 @@ def newAssign():
                                    params=params)
         
 
-@app.route('/assignment/<int:assign_id>/upload', methods=['POST'])
-def uploadTest(assign_id):
-    user = check_for_user()
-    if not user or user.username != sudo_user:
-        print 'error in user'
-        return redirect(url_for('assignView',assign_id=assign_id))
-        
+@app.route('/admin/testfile/upload/<int:assign_id>', methods=['POST'])
+@admin_only
+def uploadTest(user, assign_id):    
     if request.method == 'POST':
         file = request.files['test_file']
         name = request.form['name']
@@ -273,13 +281,17 @@ def uploadTest(assign_id):
             print 'error found'
             return redirect(url_for('assignView',assign_id=assign_id))
 
-        directory = '/vagrant/static/assignments/%s' % secure_filename(str(assign_id))
+        directory = ASSIGN_FILE_PATH + secure_filename(str(assign_id))
         if not os.path.exists(directory):
             os.makedirs(directory)
         filename = secure_filename(file.filename)
+        full_path = directory+'/'+filename
+        if os.path.exists(full_path):
+            print 'file already exists'
+            return redirect(url_for('assignView', assign_id=assign_id))
         file.save(os.path.join(directory, filename))
         test = Test(name=name,
-                    location=directory+'/'+filename,
+                    location=full_path,
                     assignment_id=assign_id,
                     user=user)
         session.add(test)
@@ -287,11 +299,9 @@ def uploadTest(assign_id):
         return redirect(url_for('assignView', assign_id=assign_id))
 
 
-@app.route('/admin/delete/<int:assign_id>', methods=['GET', 'POST'])
-def deleteAssign(assign_id):
-    user = check_for_user()
-    if not user or user.username != sudo_user:
-        return redirect(url_for('main'))
+@app.route('/admin/assignment/delete/<int:assign_id>', methods=['GET', 'POST'])
+@admin_only
+def deleteAssign(user, assign_id):
     assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
     if request.method == 'GET':
         if assign:
@@ -300,15 +310,33 @@ def deleteAssign(assign_id):
                                    assign=assign)
     else:
         if assign:
-            if os.path.exists('/vagrant/static/assignments/'+assign.name+'/'):
-                shutil.rmtree('/vagrant/static/assignments/'+assign.name+'/')
+            tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
+            for t in tests:
+                session.delete(t)
+            if os.path.exists(ASSIGN_FILE_PATH + str(assign.id)+'/'):
+                shutil.rmtree(ASSIGN_FILE_PATH + str(assign.id)+'/')
             session.delete(assign)
             session.commit()
         return redirect(url_for('main'))
 
 
+@app.route('/admin/testfile/delete/<int:testfile_id>', methods=['POST'])
+@admin_only
+def deleteTestfile(user, testfile_id):
+    if request.method == 'POST':
+        file = session.query(Test).filter(Test.id == testfile_id).first()
+        assign_id = file.assignment_id
+        directory = file.location
+        print directory
+        os.remove(directory)
+        session.delete(file)
+        session.commit()
+        return redirect(url_for('assignView',assign_id=assign_id))
+
+
 @app.route('/all')
-def all():
+@admin_only
+def all(user):
     users = session.query(User).all()
     assign = session.query(Assignment).all()
     posts = session.query(Post).all()
