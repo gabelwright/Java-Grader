@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-	<h3 clas="all text-center"><font color="red">Great job! You have gained access to the raw database! Below is ALL data stored in the database:</font></h3>
 	<h2 class="all">Users</h2>
 	<ul>
 		{% for p in users %}
@@ -42,10 +41,10 @@
 	<h2 class="all">Posts</h2>
 	<ul>
 		{% for p in posts %}
-		<li>{{p.id}}:{{p.title}}</li>
+		<li>{{p.id}}:{{p.assignment.name}}</li>
 			<ul>
-				<li>{{p.desc}}</li>
 				<li>{{p.user.name}}</li>
+				<li class="code"><pre>{{p.code}}</pre></li>
 			</ul>
 		{% endfor %}
 	</ul>

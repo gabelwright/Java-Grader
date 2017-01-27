@@ -14,6 +14,7 @@ import os
 from flask import make_response
 import requests
 import shutil
+import compileMethods
 
 
 app = Flask(__name__)
@@ -24,12 +25,13 @@ DBsession = sessionmaker(bind=engine)
 session = DBsession()
 
 ASSIGN_FILE_PATH = '/vagrant/static/assignments/'
+POST_DIRECTORY = '/vagrant/static/posts'
 ALLOWED_EXTENSIONS = set(['txt'])
 ADMIN_LIST = ['mgwright']
+MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
+
 
 hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfsnlghf389562349'
-
-sudo_user = 'mgwright'
 
 
 def hash_cookie(user):
@@ -83,7 +85,7 @@ def admin_only(f):
         print 'admin decorator'
         user = check_for_user()
         if not user or user.username not in ADMIN_LIST:
-            return abort(400)
+            return abort(403)
         return f(user,*args, **kwargs)
     return wrapper
 
@@ -109,76 +111,105 @@ def main():
                            assign=assign)
 
 
-# @app.route('/newpost', methods=['GET', 'POST'])
-# def newPost():
-#     if request.method == 'GET':
-#         user = check_for_user()
-#         if not user:
-#             return redirect(url_for('login'))
-#         return render_template('newpost.html',
-#                                user=user,
-#                                p=None)
-#     else:
-#         print 'POST'
-#         title = request.form['title']
-#         post = request.form['post']
-#         user_id = request.form['user_id']
-#         print title, post, user_id
-#         if title and post and user_id:
-#             post = Post(title=title,
-#                         desc=post,
-#                         user_id=user_id)
-#             session.add(post)
-#             session.commit()
-#             return redirect(url_for('main'))
-#         else:
-#             error = "All fields are required. Do not leave any blank."
-#             return render_template('newpost.html',
-#                                    user=user,
-#                                    e=None,
-#                                    error_message=error)
+@app.route('/newpost', methods=['GET', 'POST'])
+def newPost():
+    if request.method == 'GET':
+        user = check_for_user()
+        if not user:
+            return redirect(url_for('login'))
+        return render_template('newpost.html',
+                               user=user,
+                               p=None)
+    else:
+        print 'POST'
+        title = request.form['title']
+        post = request.form['post']
+        user_id = request.form['user_id']
+        print title, post, user_id
+        if title and post and user_id:
+            post = Post(title=title,
+                        desc=post,
+                        user_id=user_id)
+            session.add(post)
+            session.commit()
+            return redirect(url_for('main'))
+        else:
+            error = "All fields are required. Do not leave any blank."
+            return render_template('newpost.html',
+                                   user=user,
+                                   e=None,
+                                   error_message=error)
 
 
 @app.route('/assignment/<int:assign_id>', methods=['GET', 'POST'])
 @authenicate
 def assignView(user,assign_id):
-    # user = check_for_user()
-    # if not user:
-    #     return redirect(url_for('login'))
-    assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
-    tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
-    return render_template('assign.html',
+    if request.method == 'GET':
+        assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
+        tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
+        return render_template('assign.html',
+                               user=user,
+                               assign=assign,
+                               tests=tests)
+    else:
+        raw_code = request.form['code-block']
+        if not raw_code:
+            assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
+            tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
+            return render_template('assign.html',
+                               user=user,
+                               assign=assign,
+                               tests=tests)
+        else:
+            raw_code = MAIN_METHOD_HEADER + raw_code + '\n}'
+            compileMethods.writeJavaFile(user, raw_code)
+            results = compileMethods.compileJava(user)
+            print 'here are the results:'
+            print results
+            post = Post(code=raw_code, user=user, assignment_id=assign_id, results=results)
+            session.add(post)
+            session.commit()
+            return redirect(url_for('results',post_id=post.id))
+
+
+@app.route('/assignment/results/<int:post_id>')
+@authenicate
+def results(user,post_id):
+    post = session.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        abort(404)
+    return render_template('studentResults.html',
                            user=user,
-                           assign=assign,
-                           tests=tests)
+                           post=post)
 
 
-# @app.route('/edit/<int:post_id>', methods=['POST', 'GET'])
-# def editPost(post_id):
-#     post = session.query(Post).filter(Post.id == post_id).first()
-#     if request.method == 'GET':
-#         user = check_for_user()
-#         if not user:
-#             return redirect(url_for('postView', post_id=post_id))
-#         return render_template('newpost.html',
-#                                user=user,
-#                                p=post)
-#     else:
-#         title = request.form['title']
-#         des = request.form['post']
-#         if title and des:
-#             post.title = title
-#             post.desc = des
-#             session.commit()
-#             return redirect(url_for('postView', post_id=post_id))
+
+@app.route('/edit/<int:post_id>', methods=['POST', 'GET'])
+def editPost(post_id):
+    post = session.query(Post).filter(Post.id == post_id).first()
+    if request.method == 'GET':
+        user = check_for_user()
+        if not user:
+            return redirect(url_for('postView', post_id=post_id))
+        return render_template('newpost.html',
+                               user=user,
+                               p=post)
+    else:
+        title = request.form['title']
+        des = request.form['post']
+        if title and des:
+            post.title = title
+            post.desc = des
+            session.commit()
+            return redirect(url_for('postView', post_id=post_id))
 
 
-# @app.route('/delete/<int:post_id>', methods=['POST'])
-# def deletePost(post_id):
-#     post = session.query(Post).filter(Post.id == post_id).first()
-#     session.delete(post)
-#     session.commit()
-#     return redirect(url_for('main'))
+@app.route('/delete/<int:post_id>', methods=['POST'])
+def deletePost(post_id):
+    post = session.query(Post).filter(Post.id == post_id).first()
+    session.delete(post)
+    session.commit()
+    return redirect(url_for('main'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -235,6 +266,8 @@ def signup():
                         salt=salt)
             session.add(user)
             session.commit()
+            post_location = '%s/%s' % (POST_DIRECTORY,str(user.id))
+            os.makedirs(post_location)
             return redirect(url_for('login'))
         else:
             message = 'There was a problem with your form.  Please try again.'
@@ -335,7 +368,7 @@ def deleteTestfile(user, testfile_id):
 
 
 @app.route('/all')
-@admin_only
+@authenicate
 def all(user):
     users = session.query(User).all()
     assign = session.query(Assignment).all()
@@ -346,7 +379,8 @@ def all(user):
                            users=users,
                            posts=posts,
                            assign=assign,
-                           tests=tests)
+                           tests=tests,
+                           user=user)
 
 
 
