@@ -31,7 +31,7 @@ ADMIN_LIST = ['mgwright']
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
 
 
-hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfsnlghf389562349'
+hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfssavgfnlghf389562349'
 
 
 def hash_cookie(user):
