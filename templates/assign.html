@@ -13,6 +13,9 @@
 	{% endif %}
 	
 	{% if user.username != assign.user.username %}
+		<h3>
+			<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Prevouis Submissions</a>
+		</h3>
 
 		<h3 class="all">Submit Assignment:</h3>
 		<form method="POST">

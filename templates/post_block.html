@@ -8,6 +8,19 @@
 {%- endmacro %}
 
 
+{% macro results(post) -%}
+
+	<hr class="top-bar all">
+	<h3><u>Submitted by {{post.user.name}}</u></h3>
+	<h3 class="all">Code Submitted:</h3>
+	
+	<pre class="code">{{post.code}}</pre>
+	
+
+	<h3 class="all">Results:</h3>
+	<pre class="code">{{post.results}}</pre>
+
+{%- endmacro %}
 
 
 
@@ -48,7 +61,7 @@
 
 
 {% macro adminAssignView(assign, user, tests) -%}
-
+<a href="{{ url_for('editAssign',assign_id=assign.id) }}">edit</a>
 <h3 class="all">Tests:</h3>
 		<ul>
 			{% for t in tests %}

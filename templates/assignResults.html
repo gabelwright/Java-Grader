@@ -1,0 +1,24 @@
+{% import 'post_block.html' as temp %}
+
+{% extends 'base.html' %}
+
+{% block content %}
+	
+	{{ temp.assignment(assign) }}
+
+	{% if posts %}
+
+		{% for p in posts %}
+
+			{{ temp.results(p) }}
+
+		{% endfor %}
+
+	{% else %}
+
+		<h2>No Submissions Yet</h2>
+
+	{% endif %}
+
+
+{% endblock %}

@@ -14,6 +14,8 @@
 		{% endfor %}
 	</ul>
 
+
+
 	<h2 class="all">Assignments</h2>
 	<ul>
 		{% for p in assign %}
@@ -21,9 +23,12 @@
 			<ul>
 				<li>{{p.desc}}</li>
 				<li>{{p.user.name}}</li>
+				<li>{{p.include_tf}}</li>
 			</ul>
 		{% endfor %}
 	</ul>
+
+
 
 	<h2 class="all">Tests</h2>
 	<ul>
@@ -37,6 +42,8 @@
 			</li>
 		{% endfor %}
 	</ul>
+
+
 
 	<h2 class="all">Posts</h2>
 	<ul>

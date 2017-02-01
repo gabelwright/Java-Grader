@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, abort
-from sqlalchemy import func, desc
+from sqlalchemy import func, desc, and_
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import session as login_session
@@ -111,36 +111,6 @@ def main():
                            assign=assign)
 
 
-@app.route('/newpost', methods=['GET', 'POST'])
-def newPost():
-    if request.method == 'GET':
-        user = check_for_user()
-        if not user:
-            return redirect(url_for('login'))
-        return render_template('newpost.html',
-                               user=user,
-                               p=None)
-    else:
-        print 'POST'
-        title = request.form['title']
-        post = request.form['post']
-        user_id = request.form['user_id']
-        print title, post, user_id
-        if title and post and user_id:
-            post = Post(title=title,
-                        desc=post,
-                        user_id=user_id)
-            session.add(post)
-            session.commit()
-            return redirect(url_for('main'))
-        else:
-            error = "All fields are required. Do not leave any blank."
-            return render_template('newpost.html',
-                                   user=user,
-                                   e=None,
-                                   error_message=error)
-
-
 @app.route('/assignment/<int:assign_id>', methods=['GET', 'POST'])
 @authenicate
 def assignView(user,assign_id):
@@ -169,47 +139,31 @@ def assignView(user,assign_id):
             post = Post(code=raw_code, user=user, assignment_id=assign_id, results=results)
             session.add(post)
             session.commit()
-            return redirect(url_for('results',post_id=post.id))
+            return redirect(url_for('assignResults',assign_id=assign_id))
 
 
-@app.route('/assignment/results/<int:post_id>')
+@app.route('/assignment/results/<int:assign_id>')
 @authenicate
-def results(user,post_id):
-    post = session.query(Post).filter(Post.id == post_id).first()
-    if not post:
-        abort(404)
-    return render_template('studentResults.html',
+def assignResults(user,assign_id):
+	assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
+	if user.username in ADMIN_LIST:
+		posts = session.query(Post).join(Post.user).filter(Post.assignment_id == assign_id).order_by(User.name,Post.id.desc())
+	else:
+		posts = session.query(Post).filter(and_(Post.assignment_id == assign_id, Post.user_id == user.id)).order_by(desc(Post.id)).all()
+
+	return render_template('assignResults.html',
                            user=user,
-                           post=post)
+                           posts=posts,
+                           assign=assign)
 
 
-
-@app.route('/edit/<int:post_id>', methods=['POST', 'GET'])
-def editPost(post_id):
-    post = session.query(Post).filter(Post.id == post_id).first()
-    if request.method == 'GET':
-        user = check_for_user()
-        if not user:
-            return redirect(url_for('postView', post_id=post_id))
-        return render_template('newpost.html',
-                               user=user,
-                               p=post)
-    else:
-        title = request.form['title']
-        des = request.form['post']
-        if title and des:
-            post.title = title
-            post.desc = des
-            session.commit()
-            return redirect(url_for('postView', post_id=post_id))
-
-
-@app.route('/delete/<int:post_id>', methods=['POST'])
-def deletePost(post_id):
-    post = session.query(Post).filter(Post.id == post_id).first()
-    session.delete(post)
-    session.commit()
-    return redirect(url_for('main'))
+@app.route('/assignment/results')
+@authenicate
+def allResults(user):
+    assign = session.query(Assignment).order_by(desc(Assignment.id)).all()
+    return render_template('allResults.html',
+                           user=user,
+                           assign=assign)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -286,11 +240,16 @@ def newAssign(user):
         params = {}
         title = request.form['title']
         descrip = request.form['desc']
+        tf = request.form.get('include_testfiles')
 
         if title and descrip:
             assign = Assignment(name=title,
                                 desc=descrip,
                                 user=user)
+            if tf:
+            	assign.include_tf = True
+            else:
+            	assign.include_tf = False
 
             session.add(assign)
             session.commit()
@@ -302,7 +261,44 @@ def newAssign(user):
             return render_template('admin.html',
                                    user=user,
                                    params=params)
-        
+
+
+@app.route('/admin/assignment/edit/<int:assign_id>', methods=['POST','GET'])
+@admin_only
+def editAssign(user, assign_id):
+	assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
+	params = {}
+	if request.method == 'GET':
+		params['title'] = assign.name
+		params['desc'] = assign.desc
+		if assign.include_tf:
+			params['tf'] = 'checked'
+		else:
+			params['tf'] = ''
+		return render_template('admin.html',
+							   user=user,
+							   params=params)
+	else:
+		title = request.form['title']
+		descrip = request.form['desc']
+		include_tf = request.form.get('include_testfiles')
+		if title and descrip:
+			assign.name = title
+			assign.desc = descrip
+			if include_tf:
+				assign.include_tf = True
+			else:
+				assign.include_tf = False
+			session.commit()
+			return redirect(url_for('assignView',assign_id=assign_id))
+		else:
+			params['title'] = title
+			params['desc'] = descrip
+			params['error'] = 'Please fill in both fields before continuing.'
+			return render_template('admin.html',
+                                   user=user,
+                                   params=params)
+
 
 @app.route('/admin/testfile/upload/<int:assign_id>', methods=['POST'])
 @admin_only

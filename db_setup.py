@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -25,6 +25,7 @@ class Assignment(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     desc = Column(String)
+    include_tf = Column(Boolean, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)
 

@@ -7,8 +7,10 @@
 		<h4 class="all ">Title:</h4>
 		<input type="text" name="title" value="{{params['title']}}"><br>
 		<h4 class="all">Description:</h4>
-		<textarea name="desc" rows="10" cols="50">{{params['desc']}}</textarea><br>		
-		<input type="submit" value="add assignment">
+		<textarea name="desc" rows="10" cols="50">{{params['desc']}}</textarea><br>	
+		<input type="checkbox" name="include_testfiles" value="testfiles" {{params.tf}}>Evaluate using test files
+		<br>
+		<input type="submit" value="save">
 	</form>
 
 {% endblock %}

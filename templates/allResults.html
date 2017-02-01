@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	<h2>Results by Assignment:</h2>
+
+	{% for a in assign %}
+		<h3 class="all">
+			<a href="{{ url_for('assignResults', assign_id=a.id) }}">{{a.name}}</a>
+		</h3>
+	{% endfor %}
+
+{% endblock %}
