@@ -1,3 +1,5 @@
+## This project is currently in the process of going from a stand-alone program to a full web application.
+
 # Java-Grader
 
 Java-Grader is a python program written for Computer Science teachers to help evaluate student work. It works by taking students' classes/methods and adding custom main methods (test files) to them to create a complete java programs.  The programs are then compiled and executed where all output is captured and written to a text file.  It can add multiple main methods to each method/class as well.
