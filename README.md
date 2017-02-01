@@ -6,7 +6,7 @@ Java-Grader is a python program written for Computer Science teachers to help ev
 
 1. Download and install python 2.7 if you don't already have it.
 2. Place all the programs that you want to evaluate (as `.txt` files) into a folder.
-3. Download the python program to the same directory.
+3. Download `AutomaticGrader.py` to the same directory.
 4. Place as many tests as you would like (as `.java` files) in the same directory.
 5. Execute the python program.
 
