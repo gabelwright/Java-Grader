@@ -1,4 +1,4 @@
-## This project is currently in the process of going from a stand-alone program to a full web application.
+### This project is currently in the process of going from a stand-alone program to a full web application.
 
 # Java-Grader
 
