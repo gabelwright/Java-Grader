@@ -3,37 +3,47 @@
 {% block content %}
 	
 	{% import 'post_block.html' as temp %}
+	{% import 'assignment_block.html' as block %}
 
 	{{ temp.assignment(assign) }}
 
 	{% if user.username == assign.user.username %}
-
-		{{temp.adminAssignView(assign,user,tests)}}
+		
+		<a class="all" href="{{ url_for('editAssign',assign_id=assign.id) }}">edit</a>
+		<h3 class="all">Tests:</h3>
+		<ul>
+			{% for t in tests %}
+			<li>
+				<form action="{{ url_for('deleteTestfile',testfile_id=t.id) }}" method="POST">
+					<input type="submit" value="delete"> {{t.name}}
+				</form>
+			</li>
+			{% endfor %}
+		</ul>
+		<h3 class="all">Add Test File:</h3>
+		<form class="all" method="POST" action="{{ url_for('uploadTest',assign_id=assign.id) }}" enctype=multipart/form-data>
+			Name: <input type="text" name="name">
+			<input class="all" type="file" name="test_file" accept=".txt">
+			Allowed filetypes are .txt and .java<br>
+			<input type="submit" value="upload file">
+		</form>
+		
+		<hr class="all">
+		{# <form class="half" action="{{ url_for('editAssign', assign_id=assign.id) }}"> #}
+			{# <input type="submit" value="edit assignment"> #}
+		{# </form> #}
+		<form class="half text-right" action="{{ url_for('deleteAssign', assign_id=assign.id) }}">
+			<input type="submit" value="delete assignment">
+		</form>
 
 	{% endif %}
+
+	<h3 class="all">
+		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Prevouis Submissions</a>
+	</h3>
 	
 	{% if user.username != assign.user.username %}
-		<h3>
-			<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Prevouis Submissions</a>
-		</h3>
-
-		<h3 class="all">Submit Assignment:</h3>
-		<form method="POST">
-		<div class="code">
-			<span class="all">
-				package codinBlog;
-				<br>
-				public class CodinBlog{
-				<br>
-			</span>
-			
-			<textarea class="code-textbox" name="code-block" rows="15" cols="55">public static void main(String[] args){
-	
-}</textarea><br>
-			<span class="all">}</span>
-		</div>
-		<input type="submit" value="submit assignment">
-		</form>
+		{{ block.public_class(assign) }}
 	{% endif %}
 	
 

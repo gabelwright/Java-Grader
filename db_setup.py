@@ -25,6 +25,7 @@ class Assignment(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(250), nullable=False)
     desc = Column(String)
+    int_type = Column(Integer)
     include_tf = Column(Boolean, nullable=False)
     user_id = Column(Integer, ForeignKey('user.id'))
     user = relationship(User)

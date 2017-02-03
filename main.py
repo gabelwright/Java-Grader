@@ -145,13 +145,13 @@ def assignView(user,assign_id):
 @app.route('/assignment/results/<int:assign_id>')
 @authenicate
 def assignResults(user,assign_id):
-	assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
-	if user.username in ADMIN_LIST:
-		posts = session.query(Post).join(Post.user).filter(Post.assignment_id == assign_id).order_by(User.name,Post.id.desc())
-	else:
-		posts = session.query(Post).filter(and_(Post.assignment_id == assign_id, Post.user_id == user.id)).order_by(desc(Post.id)).all()
+    assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
+    if user.username in ADMIN_LIST:
+        posts = session.query(Post).join(Post.user).filter(Post.assignment_id == assign_id).order_by(User.name,Post.id.desc())
+    else:
+        posts = session.query(Post).filter(and_(Post.assignment_id == assign_id, Post.user_id == user.id)).order_by(desc(Post.id)).all()
 
-	return render_template('assignResults.html',
+    return render_template('assignResults.html',
                            user=user,
                            posts=posts,
                            assign=assign)
@@ -238,18 +238,22 @@ def newAssign(user):
                                    params=params)
     else:
         params = {}
-        title = request.form['title']
+        title = request.form['title'].replace(' ','')
         descrip = request.form['desc']
+        assign_type = request.form['assign_type']
+        print 'here is the assign type'
+        print assign_type
         tf = request.form.get('include_testfiles')
 
         if title and descrip:
             assign = Assignment(name=title,
                                 desc=descrip,
+                                int_type=assign_type,
                                 user=user)
             if tf:
-            	assign.include_tf = True
+                assign.include_tf = True
             else:
-            	assign.include_tf = False
+                assign.include_tf = False
 
             session.add(assign)
             session.commit()
@@ -266,36 +270,38 @@ def newAssign(user):
 @app.route('/admin/assignment/edit/<int:assign_id>', methods=['POST','GET'])
 @admin_only
 def editAssign(user, assign_id):
-	assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
-	params = {}
-	if request.method == 'GET':
-		params['title'] = assign.name
-		params['desc'] = assign.desc
-		if assign.include_tf:
-			params['tf'] = 'checked'
-		else:
-			params['tf'] = ''
-		return render_template('admin.html',
-							   user=user,
-							   params=params)
-	else:
-		title = request.form['title']
-		descrip = request.form['desc']
-		include_tf = request.form.get('include_testfiles')
-		if title and descrip:
-			assign.name = title
-			assign.desc = descrip
-			if include_tf:
-				assign.include_tf = True
-			else:
-				assign.include_tf = False
-			session.commit()
-			return redirect(url_for('assignView',assign_id=assign_id))
-		else:
-			params['title'] = title
-			params['desc'] = descrip
-			params['error'] = 'Please fill in both fields before continuing.'
-			return render_template('admin.html',
+    assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
+    params = {}
+    if request.method == 'GET':
+        params['title'] = assign.name
+        params['desc'] = assign.desc
+        if assign.include_tf:
+            params['tf'] = 'checked'
+        else:
+            params['tf'] = ''
+        return render_template('admin.html',
+                               user=user,
+                               params=params)
+    else:
+        title = request.form['title']
+        descrip = request.form['desc']
+        assign_type = request.form['assign_type']
+        include_tf = request.form.get('include_testfiles')
+        if title and descrip:
+            assign.name = title
+            assign.desc = descrip
+            assign.int_type = assign_type
+            if include_tf:
+                assign.include_tf = True
+            else:
+                assign.include_tf = False
+            session.commit()
+            return redirect(url_for('assignView',assign_id=assign_id))
+        else:
+            params['title'] = title
+            params['desc'] = descrip
+            params['error'] = 'Please fill in both fields before continuing.'
+            return render_template('admin.html',
                                    user=user,
                                    params=params)
 

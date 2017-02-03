@@ -1,0 +1,69 @@
+{% macro main_method(assign) -%}
+
+	<h3 class="all">Submit Assignment:</h3>
+	<form method="POST">
+		<div class="code">
+			<span class="all">
+				public class {{assign.name}}{
+				<br>
+			</span>
+
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55">public static void main(String[] args){
+
+}</textarea><br>
+			<span class="all">}</span>
+		</div>
+		<input type="submit" value="submit assignment">
+	</form>
+
+{%- endmacro %}
+
+{% macro static_method(assign) -%}
+
+	<h3 class="all">Submit Assignment:</h3>
+	<form method="POST">
+		<div class="code">
+			<span class="all">
+				public class {{assign.name}}{
+				<br>
+				&emsp;public static void main(String[] args){<br>
+				&emsp;&emsp;//main method logic<br>
+				&emsp;}<br>
+			</span>
+
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55"></textarea>
+			<br>
+			<span class="all">}</span>
+		</div>
+		<input type="submit" value="submit assignment">
+	</form>
+
+
+{%- endmacro %}
+
+{% macro public_class(assign) -%}
+
+	<h3 class="all">Submit Assignment:</h3>
+	<form method="POST">
+		<div class="code">
+			<span class="all">
+				public class {{assign.name}}{
+				<br>
+			</span>
+
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55"></textarea>
+			<br>
+			<span class="all">}</span>
+		</div>
+		<input type="submit" value="submit assignment">
+	</form>
+
+
+{%- endmacro %}
+
+
+
+
+
+
+
