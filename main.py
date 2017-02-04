@@ -29,6 +29,7 @@ POST_DIRECTORY = '/vagrant/static/posts'
 ALLOWED_EXTENSIONS = set(['txt'])
 ADMIN_LIST = ['mgwright']
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
+TEST_CODE_HEADER = ''
 
 
 hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfssavgfnlghf389562349'
@@ -114,9 +115,9 @@ def main():
 @app.route('/assignment/<int:assign_id>', methods=['GET', 'POST'])
 @authenicate
 def assignView(user,assign_id):
+    assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
+    tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
     if request.method == 'GET':
-        assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
-        tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
         return render_template('assign.html',
                                user=user,
                                assign=assign,
@@ -131,9 +132,22 @@ def assignView(user,assign_id):
                                assign=assign,
                                tests=tests)
         else:
-            raw_code = MAIN_METHOD_HEADER + raw_code + '\n}'
-            compileMethods.writeJavaFile(user, raw_code)
-            results = compileMethods.compileJava(user)
+            if assign.int_type == 0:
+                raw_code = MAIN_METHOD_HEADER + raw_code + '\n}'
+                compileMethods.writeJavaFile(user, raw_code)
+                results = compileMethods.compileJava(user)
+            elif assign.int_type == 1:
+                results = ''
+                for t in tests:
+                    c_code = t.test_code + raw_code + '\n}'
+                    compileMethods.writeJavaFile(user, c_code)
+                    results += '\n' + compileMethods.compileJava(user)
+            elif assign.type == 2:
+                results = ''
+                for t in tests:
+                    c_code = t.test_code + raw_code
+                    compileMethods.writeJavaFile(user, c_code)
+                    results += '\n' + compileMethods.compileJava(user)
             print 'here are the results:'
             print results
             post = Post(code=raw_code, user=user, assignment_id=assign_id, results=results)
@@ -306,32 +320,26 @@ def editAssign(user, assign_id):
                                    params=params)
 
 
-@app.route('/admin/testfile/upload/<int:assign_id>', methods=['POST'])
+@app.route('/admin/testfile/add/<int:assign_id>', methods=['POST'])
 @admin_only
-def uploadTest(user, assign_id):    
+def addTest(user, assign_id):    
     if request.method == 'POST':
-        file = request.files['test_file']
-        name = request.form['name']
-        if not name or not file or not allowed_file(file.filename):
-            print 'error found'
-            return redirect(url_for('assignView',assign_id=assign_id))
-
-        directory = ASSIGN_FILE_PATH + secure_filename(str(assign_id))
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        filename = secure_filename(file.filename)
-        full_path = directory+'/'+filename
-        if os.path.exists(full_path):
-            print 'file already exists'
+        title = request.form['title']
+        test_code = request.form['test_code']
+        if not title or not test_code:
+            assign = session.query(Assignment).filter(assign_id == Assignment.id).first()
+            return redirect(url_for('assign.html',
+                                   user=user,
+                                   assign_id=assign_id))
+        else:
+            test_code = TEST_CODE_HEADER + test_code + '\n}'
+            test = Test(name=title,
+                        test_code=test_code,
+                        assignment_id=assign_id,
+                        user=user)
+            session.add(test)
+            session.commit()
             return redirect(url_for('assignView', assign_id=assign_id))
-        file.save(os.path.join(directory, filename))
-        test = Test(name=name,
-                    location=full_path,
-                    assignment_id=assign_id,
-                    user=user)
-        session.add(test)
-        session.commit()
-        return redirect(url_for('assignView', assign_id=assign_id))
 
 
 @app.route('/admin/assignment/delete/<int:assign_id>', methods=['GET', 'POST'])

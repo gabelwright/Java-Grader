@@ -36,7 +36,7 @@ class Test(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(100), nullable=False)
-    location = Column(String(100), nullable=False)
+    test_code = Column(String, nullable=False)
     assignment_id = Column(Integer, ForeignKey('assignment.id'))
     assignment = relationship(Assignment)
     user_id = Column(Integer, ForeignKey('user.id'))

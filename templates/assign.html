@@ -21,17 +21,22 @@
 			{% endfor %}
 		</ul>
 		<h3 class="all">Add Test File:</h3>
-		<form class="all" method="POST" action="{{ url_for('uploadTest',assign_id=assign.id) }}" enctype=multipart/form-data>
-			Name: <input type="text" name="name">
-			<input class="all" type="file" name="test_file" accept=".txt">
-			Allowed filetypes are .txt and .java<br>
-			<input type="submit" value="upload file">
+		<form class="" method="POST" action="{{ url_for('addTest',assign_id=assign.id) }}">
+			<p>
+			Test Name:
+			<input type="text" name="title">
+			</p>
+			<div class="code">
+				public class {{assign.name}}<br>
+				&emsp;public static void main(String[] args){<br>
+				&emsp;<textarea class="code-textbox" name="test_code" rows="15" cols="55"></textarea><br>
+				}
+			</div>
+			<input type="submit" value="add test">
 		</form>
 		
 		<hr class="all">
-		{# <form class="half" action="{{ url_for('editAssign', assign_id=assign.id) }}"> #}
-			{# <input type="submit" value="edit assignment"> #}
-		{# </form> #}
+		
 		<form class="half text-right" action="{{ url_for('deleteAssign', assign_id=assign.id) }}">
 			<input type="submit" value="delete assignment">
 		</form>
