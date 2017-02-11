@@ -102,11 +102,6 @@ def make_salt():
     return salt
 
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
 @app.route('/')
 def main():
     user = check_for_user()
@@ -280,17 +275,12 @@ def newAssign(user):
         assign_type = request.form['assign_type']
         print 'here is the assign type'
         print assign_type
-        tf = request.form.get('include_testfiles')
 
         if title and descrip:
             assign = Assignment(name=title,
                                 desc=descrip,
                                 int_type=assign_type,
                                 user=user)
-            if tf:
-                assign.include_tf = True
-            else:
-                assign.include_tf = False
 
             session.add(assign)
             session.commit()
@@ -312,10 +302,6 @@ def editAssign(user, assign_id):
     if request.method == 'GET':
         params['title'] = assign.name
         params['desc'] = assign.desc
-        if assign.include_tf:
-            params['tf'] = 'checked'
-        else:
-            params['tf'] = ''
         return render_template('admin.html',
                                user=user,
                                params=params)
@@ -351,8 +337,7 @@ def addTest(user, assign_id):
         test_code = request.form['test_code']
         if not title or not test_code:
             assign = session.query(Assignment).filter(assign_id == Assignment.id).first()
-            return redirect(url_for('assign.html',
-                                   user=user,
+            return redirect(url_for('assignView',
                                    assign_id=assign_id))
         else:
             test_code = TEST_CODE_HEADER + test_code + '\n}'
