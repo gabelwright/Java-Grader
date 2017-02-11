@@ -28,9 +28,12 @@
 	
 	<pre class="code">{{post.code}}</pre>
 	
-
 	<h3 class="all">Results:</h3>
 	<pre class="code">{{post.results}}</pre>
+	<section class="all"></section>
+	<form class="half" method='POST' action={{ url_for('assignResultsReview',post_id=post.id) }}>
+		<input type="submit" value="discard results">
+	</form>
 
 {%- endmacro %}
 

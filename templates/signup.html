@@ -2,10 +2,15 @@
 
 {% block content %}
 	<h2 class="all">Please Register below:</h2>
-	<form method="post">
+	<form class="all" method="post">
 		<div class="all">
-			Name:
-			<input class="" type="text" name="name" value="{{name}}">
+			<span>First Name:</span>
+			<input type="text" name="f_name" value="{{name}}">
+			{{error_username}}
+		</div>
+		<div class="all">
+			Last Name:
+			<input class="" type="text" name="l_name" value="{{name}}">
 			{{error_username}}
 		</div>
 		<div class="all">

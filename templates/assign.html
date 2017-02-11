@@ -14,22 +14,21 @@
 		<ul>
 			{% for t in tests %}
 			<li>
-				<form action="{{ url_for('deleteTestfile',testfile_id=t.id) }}" method="POST">
-					<input type="submit" value="delete"> {{t.name}}
-				</form>
+				<a href="{{ url_for('testView',test_id=t.id) }}">{{t.name}}</a>
 			</li>
 			{% endfor %}
 		</ul>
 		<h3 class="all">Add Test File:</h3>
-		<form class="" method="POST" action="{{ url_for('addTest',assign_id=assign.id) }}">
+		<form method="POST" action="{{ url_for('addTest',assign_id=assign.id) }}">
 			<p>
 			Test Name:
 			<input type="text" name="title">
 			</p>
 			<div class="code">
-				public class {{assign.name}}<br>
+				public class {{assign.name}}{<br>
 				&emsp;public static void main(String[] args){<br>
 				&emsp;<textarea class="code-textbox" name="test_code" rows="15" cols="55"></textarea><br>
+				&emsp;}<br>
 				}
 			</div>
 			<input type="submit" value="add test">
@@ -44,12 +43,29 @@
 	{% endif %}
 
 	<h3 class="all">
-		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Prevouis Submissions</a>
+		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Previous Submissions</a>
 	</h3>
 	
 	{% if user.username != assign.user.username %}
-		{{ block.public_class(assign) }}
+		{% if assign.int_type == 0 %}
+			{{ block.main_method(assign) }}
+		{% elif assign.int_type == 1 %}
+			{{ block.static_method(assign) }}
+		{% elif assign.int_type == 2 %}
+			{{ block.public_class(assign) }}
+		{% endif %}
+		
 	{% endif %}
 	
 
 {% endblock %}
+
+
+
+
+
+
+
+
+
+

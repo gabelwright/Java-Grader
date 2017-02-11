@@ -16,7 +16,7 @@
 	<h1 class="half text-center">Codin Blog</h1>
 	<h4 class="quarter text-right">
 		{% if user %}
-		<a href="/welcome">Welcome {{user.username}}</a><br>
+		<a href="/welcome">Welcome {{user.f_name}}</a><br>
 		<a href="/logout">logout</a>
 		{% else %}
 		<a href="/login">Login</a> / <a href="/signup">Signup</a>

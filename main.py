@@ -24,12 +24,17 @@ Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
 session = DBsession()
 
+ADMIN_LIST = ['mgwright','matt']
+
 ASSIGN_FILE_PATH = '/vagrant/static/assignments/'
 POST_DIRECTORY = '/vagrant/static/posts'
 ALLOWED_EXTENSIONS = set(['txt'])
-ADMIN_LIST = ['mgwright']
+
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
-TEST_CODE_HEADER = ''
+TEST_CODE_HEADER = '''
+public class CodinBlog{\n
+public static void main(String[] args){\n
+'''
 
 
 hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfssavgfnlghf389562349'
@@ -91,7 +96,6 @@ def admin_only(f):
     return wrapper
 
 
-
 def make_salt():
     salt = ''.join(random.choice(
         string.ascii_uppercase + string.digits) for x in xrange(7))
@@ -142,18 +146,35 @@ def assignView(user,assign_id):
                     c_code = t.test_code + raw_code + '\n}'
                     compileMethods.writeJavaFile(user, c_code)
                     results += '\n' + compileMethods.compileJava(user)
-            elif assign.type == 2:
+            elif assign.int_type == 2:
                 results = ''
                 for t in tests:
-                    c_code = t.test_code + raw_code
+                    c_code = t.test_code + '\n}' + raw_code
+                    print c_code
                     compileMethods.writeJavaFile(user, c_code)
                     results += '\n' + compileMethods.compileJava(user)
-            print 'here are the results:'
-            print results
             post = Post(code=raw_code, user=user, assignment_id=assign_id, results=results)
             session.add(post)
             session.commit()
-            return redirect(url_for('assignResults',assign_id=assign_id))
+            return redirect(url_for('assignResultsReview',post_id=post.id))
+
+
+@app.route('/assignment/review/<int:post_id>', methods=['GET', 'POST'])
+@authenicate
+def assignResultsReview(user,post_id):
+    post = session.query(Post).filter(post_id == Post.id).first()
+    assign = session.query(Assignment).filter(Assignment.id == post.assignment_id).first()
+    if post.user_id != user.id and user.username not in ADMIN_LIST :
+            return abort(403)
+    if request.method == 'GET':
+        
+        return render_template('assignReviewResults.html',
+                                assign=assign,
+                                post=post)
+    else:
+        session.delete(post)
+        session.commit()
+        return redirect(url_for('assignView',assign_id=assign.id))
 
 
 @app.route('/assignment/results/<int:assign_id>')
@@ -161,7 +182,7 @@ def assignView(user,assign_id):
 def assignResults(user,assign_id):
     assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
     if user.username in ADMIN_LIST:
-        posts = session.query(Post).join(Post.user).filter(Post.assignment_id == assign_id).order_by(User.name,Post.id.desc())
+        posts = session.query(Post).join(Post.user).filter(Post.assignment_id == assign_id).order_by(User.l_name,Post.id.desc())
     else:
         posts = session.query(Post).filter(and_(Post.assignment_id == assign_id, Post.user_id == user.id)).order_by(desc(Post.id)).all()
 
@@ -217,17 +238,19 @@ def signup():
     if request.method == 'GET':
         return render_template('signup.html')
     else:
-        name = request.form['name']
+        f_name = request.form['f_name']
+        l_name = request.form['l_name']
         username = request.form['username'].strip()
         password = request.form['password']
         verify = request.form['verify']
         email = request.form['email']
         userQuery = session.query(User).filter(User.username == username).first()
 
-        if username and email and password and password == verify and not userQuery:
+        if f_name and l_name and username and email and password and password == verify and not userQuery:
             salt = make_salt()
             hashed_password = hashlib.sha512(password + salt).hexdigest()
-            user = User(name=name,
+            user = User(f_name=f_name,
+                        l_name=l_name,
                         email=email,
                         username=username,
                         password=hashed_password,
@@ -320,7 +343,7 @@ def editAssign(user, assign_id):
                                    params=params)
 
 
-@app.route('/admin/testfile/add/<int:assign_id>', methods=['POST'])
+@app.route('/admin/test/add/<int:assign_id>', methods=['POST'])
 @admin_only
 def addTest(user, assign_id):    
     if request.method == 'POST':
@@ -363,18 +386,27 @@ def deleteAssign(user, assign_id):
         return redirect(url_for('main'))
 
 
-@app.route('/admin/testfile/delete/<int:testfile_id>', methods=['POST'])
+@app.route('/admin/test/delete/<int:test_id>', methods=['POST'])
 @admin_only
-def deleteTestfile(user, testfile_id):
+def deleteTest(user, test_id):
     if request.method == 'POST':
-        file = session.query(Test).filter(Test.id == testfile_id).first()
-        assign_id = file.assignment_id
-        directory = file.location
-        print directory
-        os.remove(directory)
-        session.delete(file)
+        test = session.query(Test).filter(Test.id == test_id).first()
+        assign_id = test.assignment_id
+        session.delete(test)
         session.commit()
         return redirect(url_for('assignView',assign_id=assign_id))
+
+
+@app.route('/admin/test/<int:test_id>', methods=['GET','POST'])
+@admin_only
+def testView(user, test_id):
+    test = session.query(Test).filter(Test.id == test_id).first()
+    if request.method == 'GET':
+        assign = session.query(Assignment).filter(Assignment.id == test.assignment_id).first()
+        return render_template('testView.html',
+                               test=test,
+                               user=user,
+                               assign=assign)
 
 
 @app.route('/all')

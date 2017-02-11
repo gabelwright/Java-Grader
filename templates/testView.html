@@ -1,0 +1,16 @@
+{% import 'post_block.html' as temp %}
+
+{% extends 'base.html' %}
+
+{% block content %}
+	
+	{{ temp.assignment(assign) }}
+
+	<h2 class="all">{{test.name}}</h2>
+	<pre class="code">{{test.test_code}}</pre>
+	<form class="all" action="{{ url_for('deleteTest',test_id=test.id) }}" method="POST">
+		<input type="submit" value="delete"> 
+	</form>
+
+
+{% endblock %}
