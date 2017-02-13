@@ -18,6 +18,7 @@ class User(Base):
     username = Column(String(250), nullable=False)
     password = Column(String, nullable=False)
     salt = Column(String(10), nullable=False)
+    admin = Column(Boolean, nullable=False)
 
 
 class Assignment(Base):
@@ -56,5 +57,6 @@ class Post(Base):
     assignment = relationship(Assignment)
 
 
+# engine = create_engine('postgresql://db:dbpass@localhost/db')
 engine = create_engine('sqlite:///codin-site.db')
 Base.metadata.create_all(engine)

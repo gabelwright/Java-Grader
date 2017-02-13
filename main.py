@@ -19,16 +19,17 @@ import compileMethods
 
 app = Flask(__name__)
 
+# engine = create_engine('postgresql://db:dbpass@localhost/db')
 engine = create_engine('sqlite:///codin-site.db')
 Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
 session = DBsession()
 
-ADMIN_LIST = ['mgwright','matt']
+# ASSIGN_FILE_PATH = '/var/www/java_grader/java_grader/static/assignments/'
+# POST_DIRECTORY = '/var/www/java_grader/java_grader/static/posts'
 
 ASSIGN_FILE_PATH = '/vagrant/static/assignments/'
 POST_DIRECTORY = '/vagrant/static/posts'
-ALLOWED_EXTENSIONS = set(['txt'])
 
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
 TEST_CODE_HEADER = '''
@@ -90,7 +91,7 @@ def admin_only(f):
     def wrapper(*args, **kwargs):
         print 'admin decorator'
         user = check_for_user()
-        if not user or user.username not in ADMIN_LIST:
+        if not user or not user.admin:
             return abort(403)
         return f(user,*args, **kwargs)
     return wrapper
@@ -176,7 +177,7 @@ def assignResultsReview(user,post_id):
 @authenicate
 def assignResults(user,assign_id):
     assign = session.query(Assignment).filter(Assignment.id == assign_id).first()
-    if user.username in ADMIN_LIST:
+    if user.admin:
         posts = session.query(Post).join(Post.user).filter(Post.assignment_id == assign_id).order_by(User.l_name,Post.id.desc())
     else:
         posts = session.query(Post).filter(and_(Post.assignment_id == assign_id, Post.user_id == user.id)).order_by(desc(Post.id)).all()
@@ -249,11 +250,16 @@ def signup():
                         email=email,
                         username=username,
                         password=hashed_password,
-                        salt=salt)
+                        salt=salt,
+                        admin=False)
             session.add(user)
             session.commit()
-            post_location = '%s/%s' % (POST_DIRECTORY,str(user.id))
-            os.makedirs(post_location)
+            if(user.id == 1):
+                user.admin = True
+                session.commit()
+            else:
+                post_location = '%s/%s' % (POST_DIRECTORY,str(user.id))
+                os.makedirs(post_location)
             return redirect(url_for('login'))
         else:
             message = 'There was a problem with your form.  Please try again.'

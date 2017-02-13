@@ -7,7 +7,7 @@
 
 	{{ temp.assignment(assign) }}
 
-	{% if user.username == assign.user.username %}
+	{% if user.admin %}
 		
 		<a class="all" href="{{ url_for('editAssign',assign_id=assign.id) }}">edit</a>
 		<h3 class="all">Tests:</h3>
