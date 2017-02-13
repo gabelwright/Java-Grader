@@ -7,6 +7,10 @@
 
 	{{ temp.assignment(assign) }}
 
+	<h3 class="all">
+		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Previous Submissions</a>
+	</h3>
+
 	{% if user.admin %}
 		
 		<a class="all" href="{{ url_for('editAssign',assign_id=assign.id) }}">edit</a>
@@ -40,13 +44,7 @@
 			<input type="submit" value="delete assignment">
 		</form>
 
-	{% endif %}
-
-	<h3 class="all">
-		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Previous Submissions</a>
-	</h3>
-	
-	{% if user.username != assign.user.username %}
+	{% else %}
 		{% if assign.int_type == 0 %}
 			{{ block.main_method(assign) }}
 		{% elif assign.int_type == 1 %}
