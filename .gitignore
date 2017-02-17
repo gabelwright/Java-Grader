@@ -2,6 +2,7 @@
 .vagrant/machines/default/virtualbox/action_provision
 /codin-site.db
 /hash_codes.txt
+/Java-api/hash_codes.txt
 
 Vagrantfile
 
