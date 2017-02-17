@@ -19,3 +19,19 @@ Vagrantfile
 .vagrant/machines/default/virtualbox/synced_folders
 
 *.pyc
+
+Java-api/post.py
+
+Java-api/.vagrant/machines/default/virtualbox/action_provision
+
+Java-api/.vagrant/machines/default/virtualbox/action_set_name
+
+Java-api/.vagrant/machines/default/virtualbox/creator_uid
+
+Java-api/.vagrant/machines/default/virtualbox/id
+
+Java-api/.vagrant/machines/default/virtualbox/index_uuid
+
+Java-api/.vagrant/machines/default/virtualbox/private_key
+
+Java-api/.vagrant/machines/default/virtualbox/synced_folders
