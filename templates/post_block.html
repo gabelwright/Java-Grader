@@ -23,7 +23,7 @@
 {% macro results(post) -%}
 
 	<hr class="top-bar all">
-	<h3><u>Submitted by {{post.user.name}}</u></h3>
+	<h3><u>Submitted by {{post.user.f_name}} {{post.user.l_name}}</u></h3>
 	<h3 class="all">Code Submitted:</h3>
 	
 	<pre class="code">{{post.code}}</pre>

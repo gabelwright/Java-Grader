@@ -37,8 +37,10 @@ public class CodinBlog{\n
 public static void main(String[] args){\n
 '''
 
-
-hash_secret = 'sjkbfkjsbvkfjsdnv;ldfknvlkfssavgfnlghf389562349'
+file = open('hash_codes.txt','r')
+hash_secret = file.read()
+print hash_secret
+file.close()
 
 
 def hash_cookie(user):
