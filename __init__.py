@@ -15,6 +15,7 @@ from flask import make_response
 import requests
 import shutil
 import compileMethods
+import ast
 
 
 app = Flask(__name__)
@@ -39,7 +40,6 @@ public static void main(String[] args){\n
 
 file = open('hash_codes.txt','r')
 hash_secret = file.read()
-print hash_secret
 file.close()
 
 
@@ -105,6 +105,18 @@ def make_salt():
     return salt
 
 
+def java_api_call(user,raw_code):
+    payload = {}
+    payload['user'] = str(user)
+    payload['code'] = raw_code
+    payload['auth'] = hashlib.sha512(hash_secret+payload['user']).hexdigest()
+    url = 'http://104.236.77.41/run'
+    res = requests.post(url, data=payload)
+    data = ast.literal_eval(res.text)
+    data['status_code'] = res.status_code
+    return data
+
+
 @app.route('/')
 def main():
     user = check_for_user()
@@ -136,22 +148,26 @@ def assignView(user,assign_id):
         else:
             if assign.int_type == 0:
                 raw_code = MAIN_METHOD_HEADER + raw_code + '\n}'
-                compileMethods.writeJavaFile(user, raw_code)
-                results = compileMethods.compileJava(user)
+                data = java_api_call(user.username,raw_code)
             elif assign.int_type == 1:
-                results = ''
                 for t in tests:
                     c_code = t.test_code + raw_code + '\n}'
-                    compileMethods.writeJavaFile(user, c_code)
-                    results += '\n' + compileMethods.compileJava(user)
+                    data = java_api_call(user.username,c_code)
+                    data['result'] += '\n'
             elif assign.int_type == 2:
-                results = ''
                 for t in tests:
                     c_code = t.test_code + '\n}' + raw_code
-                    print c_code
-                    compileMethods.writeJavaFile(user, c_code)
-                    results += '\n' + compileMethods.compileJava(user)
-            post = Post(code=raw_code, user=user, assignment_id=assign_id, results=results)
+                    data = java_api_call(user.username,c_code)
+                    data['result'] += '\n'
+            if data['status_code'] != 200:
+                data['result'] = 'Status code {0}. Please try again later.  If this continues to happen, please notify your instructor.'.format(data['status_code'])
+            if data['exit_code'] == 0:
+                print "Exit code: 0"
+            elif data['exit_code'] == 124:
+                data['result'] += '\nMethod took too much time to complete and was terminated early.'
+            else:
+                data['result'] += '\nAn error was found in your code.  Please double check it before resubmitting.'
+            post = Post(code=raw_code, user=user, assignment_id=assign_id, results=data['result'])
             session.add(post)
             session.commit()
             return redirect(url_for('assignResultsReview',post_id=post.id))

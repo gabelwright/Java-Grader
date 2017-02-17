@@ -4,12 +4,10 @@ import hashlib
 
 app = Flask(__name__)
 
-FILE_DIRECTORY = '/vagrant/static/posts'
-# FILE_DIRECTORY = '/var/www/java_api/java_api/static/posts'
+# FILE_DIRECTORY = '/vagrant/static/posts'
+FILE_DIRECTORY = '/var/www/java_api/java_api/static/posts'
 
-file = open('hash_codes.txt','r')
-hash_secret = file.read()
-file.close()
+hash_secret = ''
 
 @app.route("/", methods=['GET'])
 def hello():
@@ -23,7 +21,7 @@ def run():
 	auth = request.form.get('auth')
 	if not user or not code:
 		return make_response(jsonify({'exit_code': None,'result':None}), 400)
-	if not auth or auth != hashlib.sha512(hash_secret+code).hexdigest():
+	if not auth or auth != hashlib.sha512(hash_secret+user).hexdigest():
 		return make_response(jsonify({'exit_code': None,'result':None}), 401)
 	compileMethods.writeJavaFile(user,code)
 	output = compileMethods.compileJava(user)
