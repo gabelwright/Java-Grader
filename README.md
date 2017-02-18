@@ -1,27 +1,120 @@
-### This project is currently in the process of going from a stand-alone program to a full web application.
+### This project is currently a work in progess
 
 # Java-Grader
 
-Java-Grader is a python program written for Computer Science teachers to help evaluate student work. It works by taking students' classes/methods and adding custom main methods (test files) to them to create a complete java programs.  The programs are then compiled and executed where all output is captured and written to a text file.  It can add multiple main methods to each method/class as well.
+Java-Grader is a python program written for Computer Science teachers to help evaluate student work. To properly evaluate a student's program, an instructor must either comb over the code looking for errors or run the program repeatedly testing its performance in many different scenarios.  Both of which can be extremely time consuming and exhausting.  Java Grader looks to solve this problem by automating the process.
 
-## Quick Start
 
-1. Download and install python 2.7 if you don't already have it.
-2. Place all the programs that you want to evaluate (as `.txt` files) into a folder.
-3. Download `AutomaticGrader.py` to the same directory.
-4. Place as many tests as you would like (as `.java` files) in the same directory.
-5. Execute the python program.
+Through Java Grader, instructors can create three types of assignments:
+
+1. **Main Method Assignment:** Students will write a main method for a java program.
+2. **Static Methods Assignment:** Students will write a collection of static methods.
+3. **Public Class Assignment:** Students will write a java class.
+
+Main method assignments are simply compiled and run and the results are returned to both the instructor and the student.  However, with the other two types of assignment, the instructor has the option to submit a main method to be compiled with the student's work.  For example, if the assignment calls for the students to submit a collection of static methods, the instructor could write a main method that calls those static methods, checks their output, and prints the results for the student. Essentially, the student and instructor are given a summary of how the code performed.
 
 ### How it Works
 
-Each student's static methods/class should be in the form of a `.txt` file, while each test file should be in the form of a `.java` file.
+Java Grader with the help of a custom-built API to compile code.  When a student submits code, it is combined with any main methods the instructor has provided and an API call is made to compile and run the code.  As a result, all code is compiled on a completely different server in an isolated environment.  For example, a teacher may give the following assignment:
 
-Java-Grader works by writing the contents of the first `.java` test file to a new `.java` file followed by the contents of the first `.txt` file.  The new java file is then compiled and executed.  Everything written to the console is captured and written to a new `.txt` file.  This is repeated with each test file before moving on to the next `.txt` file.  The result is a single `.txt` file called `ProgramResults.txt` that contains the output of every test with every file.
+*Write two static methods called 'sum' and 'product.' Each method should take in two integers and return a single integer. The method 'sum' should return the sum of the two numbers while 'product' should return the product of the two integers.*
 
-### Test Files
+Then the instructor submits the following main method to help evaluate the responses:
 
-All test files must start with `public class ActiveFile {` for them to compile correctly!  In addition, the file should include a complete main method that utilizes the static methods/classes from the students' `.txt` files.  Additional static methods can also be added to the bottom of the test files if needed.  Multiple test files can be included if you would like to run a variety of tests.  The output from each test file will be written to the `ProgramResults.txt` file in alphabetical order.  If student files contain static methods, do not include the final closing bracket for the package.  Instead, you will need to change the variable `contains_static_methods` to `True` at the top of the python program.  Otherwise, close the package bracket per usual.
+		public static void main(String[] args){
 
-### Student Files
+			int a = 7;
+			int b = 14;
+			int c = 23;
 
-Student files should not include any package information or a main method.  Results are written to `ProgramResults.txt` per the file name so it is recommended for students to name the file after themselves.  If an error is thrown, (and not caught) the error is recorded in `ProgramResults.txt` as well.  If student files contain classes, the classes cannot be public.  For example, if the student file contains the class `Matrix`, then the file should start with `class Matrix {` not `public class Matrix {`.
+			int s1 = sum(a,b);
+			int p1 = product(a,b);
+
+			int s2 = sum(b,c);
+
+			if(s1 == 21 && s2 == 37)
+				System.out.println("Sum method works as expected!");
+			else{
+				System.out.println("Your sum method did not pass all tests:");
+				System.out.println("Your method returned "+s1+" and "+s2+".");
+				System.out.println("It should have returned 21 and 37.");
+			}
+
+			if(p1 == 98)
+				System.out.println("Product method works as expected!");
+			else{
+				System.out.println("Your product method did not pass all tests:");
+				System.out.println("Your method returned "+p1+".");
+				System.out.println("It should have returned 98.");
+			}
+		}
+
+Lastly, students should submit something similar to:
+
+		public static int sum(int a, int b) {
+		   return a + b;
+		}
+		public static int product(int a, int b) {
+		  return a * b;
+		}
+
+The student's code is combined with the main method and the following code is compiled:
+
+		public class Example{
+			public static void main(String[] args){
+
+				int a = 7;
+				int b = 14;
+				int c = 23;
+
+				int s1 = sum(a,b);
+				int p1 = product(a,b);
+
+				int s2 = sum(b,c);
+
+				if(s1 == 21 && s2 == 37)
+					System.out.println("Sum method works as expected!");
+				else{
+					System.out.println("Your sum method did not pass all tests:");
+					System.out.println("Your method returned "+s1+" and "+s2+".");
+					System.out.println("It should have returned 21 and 37.");
+				}
+
+				if(p1 == 98)
+					System.out.println("Product method works as expected!");
+				else{
+					System.out.println("Your product method did not pass all tests:");
+					System.out.println("Your method returned "+p1+".");
+					System.out.println("It should have returned 98.");
+				}
+			}
+
+			public static int sum(int a, int b) {
+			   return a + b;
+			}
+			public static int product(int a, int b) {
+			  return a * b;
+			}
+		}
+
+The following results are then delivered to both the instructor and the student:
+
+		Sum method works as expected!
+		Product method works as expected!
+
+With this result, the instructor can then focus on efficiency and best practices instead of trying to look for errors.
+
+### Setup
+
+Java Grader consists to two separate flask applications, the main program and the API.  For security reasons, an API call is made to a separate server to compile and run code in an isolated, clean environment.  Both applications can be setup in a similar fashion to any other flask applications.  Just be sure to install Java on the server that handles the API.  For step by step directions on how to setup a flask application on a Virtual Private Server, [see this guide.](https://github.com/acronymcreations/Linux-Server-Setup)
+
+
+
+
+
+
+
+
+
+
+
