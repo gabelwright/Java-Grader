@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2 class="all">Reset User Password:</h2>
+
+<form method="POST">
+	<p class="all">
+		Username:
+		<input type="text" name="username">
+	</p>
+	<p class="all">
+		New Password:
+		<input type="password" name="password">
+	</p>
+		<input type="submit" value="update password">
+</form>
+<p class="all">{{status_message}}</p>
+	
+
+{% endblock %}

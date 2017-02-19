@@ -18,7 +18,7 @@ session = DBSession()
 
 # Demote user from admin
 # USER_TO_DEMOTE = 'username goes here'
-# user = session.query(User).filter(User.username == USER_TO_PROMOTE).first()
+# user = session.query(User).filter(User.username == USER_TO_DEMOTE).first()
 # if user:
 # 	user.admin = False
 # 	session.commit()

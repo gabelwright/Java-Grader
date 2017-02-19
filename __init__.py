@@ -38,13 +38,14 @@ public class CodinBlog{\n
 public static void main(String[] args){\n
 '''
 
-file = open('hash_codes.txt','r')
-hash_secret = file.read()
-file.close()
+hash_salt = json.loads(
+    open('hash_codes.json', 'r').read())['keys']['cookie_salt']
+api_salt = json.loads(
+    open('hash_codes.json', 'r').read())['keys']['api_salt']
 
 
 def hash_cookie(user):
-    hash_text = hashlib.sha512(user.username + hash_secret).hexdigest()
+    hash_text = hashlib.sha512(user.username + hash_salt).hexdigest()
     cookie_text = '%s|%s' % (user.username, hash_text)
     print cookie_text
     return cookie_text
@@ -62,7 +63,7 @@ def check_for_user():
     print cookie_value
     if cookie_value:
         params = cookie_value.split('|')
-        if hashlib.sha512(params[0] + hash_secret).hexdigest() == params[1]:
+        if hashlib.sha512(params[0] + hash_salt).hexdigest() == params[1]:
             user = session.query(User).filter(User.username == params[0]).first()
             if user:
                 print 'logged in as ' + user.username
@@ -109,10 +110,13 @@ def java_api_call(user,raw_code):
     payload = {}
     payload['user'] = str(user)
     payload['code'] = raw_code
-    payload['auth'] = hashlib.sha512(hash_secret+payload['user']).hexdigest()
+    payload['auth'] = hashlib.sha512(api_salt+payload['user']).hexdigest()
     url = 'http://104.236.77.41/run'
+
     res = requests.post(url, data=payload)
-    data = ast.literal_eval(res.text)
+    data = {}
+    if res.status_code == 200:
+    	data = ast.literal_eval(res.text)
     data['status_code'] = res.status_code
     return data
 
@@ -161,12 +165,13 @@ def assignView(user,assign_id):
                     data['result'] += '\n'
             if data['status_code'] != 200:
                 data['result'] = 'Status code {0}. Please try again later.  If this continues to happen, please notify your instructor.'.format(data['status_code'])
-            if data['exit_code'] == 0:
-                print "Exit code: 0"
-            elif data['exit_code'] == 124:
-                data['result'] += '\nMethod took too much time to complete and was terminated early.'
             else:
-                data['result'] += '\nAn error was found in your code.  Please double check it before resubmitting.'
+	            if data['exit_code'] == 0:
+	                print "Exit code: 0"
+	            elif data['exit_code'] == 124:
+	                data['result'] += '\nMethod took too much time to complete and was terminated early.'
+	            else:
+	                data['result'] += '\nAn error was found in your code.  Please double check it before resubmitting.'
             post = Post(code=raw_code, user=user, assignment_id=assign_id, results=data['result'])
             session.add(post)
             session.commit()
@@ -284,7 +289,7 @@ def signup():
             return render_template('signup.html', error_email=message)
 
 
-@app.route('/admin/new', methods=['GET', 'POST'])
+@app.route('/admin/assignment/new', methods=['GET', 'POST'])
 @admin_only
 def newAssign(user):
     if request.method == 'GET':
@@ -418,8 +423,47 @@ def testView(user, test_id):
                                assign=assign)
 
 
+@app.route('/admin/reset', methods=['GET','POST'])
+@admin_only
+def resetPassword(user):
+	if request.method == 'GET':
+		return render_template('resetPass.html',
+							   user=user)
+	else:
+		username = request.form['username']
+		password = request.form['password']
+		if not username or not password:
+			status_message = 'Both fields are required.'
+			return render_template('resetPass.html',
+								   status_message=status_message,
+								   user=user)
+		user = session.query(User).filter(User.username == username).first()
+		if not user:
+			status_message = 'User could not be found. Please verify their username and try again.'
+			return render_template('resetPass.html',
+								   status_message=status_message,
+								   user=user)
+		salt = make_salt()
+		user.salt = salt
+		user.password = hashlib.sha512(password + salt).hexdigest()
+		session.commit()
+		status_message = 'Users password has been changed.'
+		return render_template('resetPass.html',
+							   status_message=status_message,
+							   user=user)
+
+
+@app.route('/admin', methods=['GET','POST'])
+@admin_only
+def adminPage(user):
+	if request.method == 'GET':
+		return render_template('adminPage.html',user=user)
+	else:
+		pass
+
+
 @app.route('/all')
-@authenicate
+@admin_only
 def all(user):
     users = session.query(User).all()
     assign = session.query(Assignment).all()
@@ -432,9 +476,6 @@ def all(user):
                            assign=assign,
                            tests=tests,
                            user=user)
-
-
-
 
 
 if __name__ == '__main__':

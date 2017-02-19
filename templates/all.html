@@ -4,12 +4,13 @@
 	<h2 class="all">Users</h2>
 	<ul>
 		{% for p in users %}
-		<li>{{p.id}}:{{p.name}}</li>
+		<li>{{p.id}}:{{p.f_name}} {{p.l_name}}</li>
 			<ul>
 				<li>{{p.username}}</li>
 				<li>{{p.email}}</li>
 				<li>{{p.password}}</li>
 				<li>{{p.salt}}</li>
+				<li>Is Admin: {{p.admin}}</li>
 			</ul>
 		{% endfor %}
 	</ul>
@@ -22,8 +23,7 @@
 		<li>{{p.id}}:{{p.name}}</li>
 			<ul>
 				<li>{{p.desc}}</li>
-				<li>{{p.user.name}}</li>
-				<li>{{p.include_tf}}</li>
+				<li>{{p.user.username}}</li>
 				<li>{{p.int_type}}</li>
 			</ul>
 		{% endfor %}
@@ -38,7 +38,8 @@
 				{{t.id}}:{{t.assignment.name}}
 				<ul>
 					<li>{{t.name}}</li>
-					<li>{{t.test_code}}</li>
+					<li class="code"><pre>{{t.test_code}}</pre></li>
+					<li>{{t.user.username}}</li>
 				</ul>
 			</li>
 		{% endfor %}
@@ -53,6 +54,7 @@
 			<ul>
 				<li>{{p.user.name}}</li>
 				<li class="code"><pre>{{p.code}}</pre></li>
+				<li class="code"><pre>{{p.results}}</pre></li>
 			</ul>
 		{% endfor %}
 	</ul>

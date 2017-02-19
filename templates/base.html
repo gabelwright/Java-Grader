@@ -25,11 +25,11 @@
 	
 	<hr class="all top-bar">
 	<h3 class="half text-center">
-		<a href="{{ url_for('allResults') }}">Results</a><br>
+		<a href="{{ url_for('allResults') }}">View Submissions</a><br>
 	</h3>
 	<h3 class="half text-center">
 		{% if user and user.admin %}
-			<a href="{{ url_for('newAssign') }}">New Assignment</a><br>
+			<a href="{{ url_for('adminPage') }}">Admin Page</a><br>
 		{% endif %}
 	</h3>
 	
