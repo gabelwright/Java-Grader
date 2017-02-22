@@ -4,7 +4,7 @@
 
 <h2 class="all"><a href="{{ url_for('assignView', assign_id=assign.id) }}">{{assign.name}}</a></h2>
 <div class="all">
-	{{assign.desc}}
+	<pre class="assign-desc">{{assign.desc}}</pre>
 </div>
 <p>
 <strong>Assignment Type:&nbsp;</strong>

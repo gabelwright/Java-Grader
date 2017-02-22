@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+	
+	<h2 class="all">Students:</h2>
+	<ul>
+		{% for a in users %}
+		<li>{{a.f_name}} {{a.l_name}}
+			<ul>
+				<li>Username: {{a.username}}</li>
+				<li>Email: {{a.email}}</li>
+				<form method="POST" action="{{ url_for('deleteUser',user_id=a.id ) }}">
+					<input type="submit" value="delete user">
+				</form>
+				
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
+	<h2 class="all">Admin:</h2>
+	<ul>
+		{% for a in admin %}
+		<li>{{a.f_name}} {{a.l_name}}
+			<ul>
+				<li>Username: {{a.username}}</li>
+				<li>Email: {{a.email}}</li>
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
+
+{% endblock %}

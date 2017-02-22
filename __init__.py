@@ -453,6 +453,36 @@ def resetPassword(user):
 							   user=user)
 
 
+@app.route('/admin/roster', methods=['GET','POST'])
+@admin_only
+def roster(user):
+    if request.method == 'GET':
+        users = session.query(User).filter(User.admin == False).order_by(desc(User.l_name)).all()
+        admin = session.query(User).filter(User.admin == True).order_by(desc(User.l_name)).all()
+        return render_template('roster.html',
+                               user=user,
+                               users=users,
+                               admin=admin)
+    else:
+        username = request.form['username']
+        user = session.query(User).filter(User.username == username).first()
+        if user:
+            session.delete(user)
+            session.commit()
+        return redirect(url_for('roster'))
+
+
+
+@app.route('/admin/roster/delete/<int:user_id>', methods=['POST'])
+@admin_only
+def deleteUser(user, user_id):
+    user = session.query(User).filter(User.id == user_id).first()
+    if user:
+        session.delete(user)
+        session.commit()
+    return redirect(url_for('roster'))
+
+
 @app.route('/admin', methods=['GET','POST'])
 @admin_only
 def adminPage(user):

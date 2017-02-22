@@ -52,7 +52,7 @@
 		{% for p in posts %}
 		<li>{{p.id}}:{{p.assignment.name}}</li>
 			<ul>
-				<li>{{p.user.name}}</li>
+				<li>{{p.user.f_name}} {{p.user.l_name}}</li>
 				<li class="code"><pre>{{p.code}}</pre></li>
 				<li class="code"><pre>{{p.results}}</pre></li>
 			</ul>
