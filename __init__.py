@@ -19,7 +19,7 @@ app = Flask(__name__)
 engine = create_engine('sqlite:///codin-site.db')
 Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
-# session = DBsession()
+session = DBsession() # noqa
 
 # POST_DIRECTORY = '/var/www/java_grader/java_grader/static/posts'
 
@@ -53,7 +53,7 @@ def hash_cookie(user):
 def setCookie(user):
     cookie_value = hash_cookie(user)
     response = app.make_response(redirect(url_for('main')))
-    response.set_cookie('user_id', value=cookie_value)
+    response.set_cookie('user_id', value=cookie_value, PATH='/')
     return response
 
 
@@ -278,9 +278,19 @@ def signup():
         email = request.form['email']
         userQuery = session.query(User).filter(
             User.username == username).first()
+        if userQuery:
+            message = 'That username is already in use. ' \
+                'Please choose a different one.'
+            return render_template('signup.html', error_email=message)
+        if not password:
+            message = 'Please enter a valid password'
+            return render_template('signup.html', error_email=message)
+        if password != verify:
+            message = 'You did not verify your password correctly. ' \
+                'Please try again.'
+            return render_template('signup.html', error_email=message)
 
-        if (f_name and l_name and username and email and
-                password and password == verify and not userQuery):
+        if f_name and l_name and username and email:
             salt = make_salt()
             hashed_password = hashlib.sha512(password + salt).hexdigest()
             user = User(f_name=f_name,
@@ -301,7 +311,7 @@ def signup():
                 # os.makedirs(post_location)
             return redirect(url_for('login'))
         else:
-            message = 'There was a problem with your form.  Please try again.'
+            message = 'All fields are required.'
             return render_template('signup.html', error_email=message)
 
 
@@ -480,7 +490,7 @@ def resetPassword(user):
 def roster(user):
     if request.method == 'GET':
         users = session.query(User).filter(
-            not User.admin).order_by(desc(User.l_name)).all()
+            User.admin == False).order_by(desc(User.l_name)).all() # noqa
         admin = session.query(User).filter(
             User.admin).order_by(desc(User.l_name)).all()
         return render_template('roster.html',
@@ -500,7 +510,7 @@ def roster(user):
 @admin_only
 def deleteUser(user, user_id):
     user = session.query(User).filter(User.id == user_id).first()
-    posts = session.query(Post).filter(Post.user_id == user_id).first
+    posts = session.query(Post).filter(Post.user_id == user_id).all()
     if posts:
         for p in posts:
             session.delete(p)
