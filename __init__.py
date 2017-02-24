@@ -21,20 +21,20 @@ Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
 session = DBsession() # noqa
 
-# POST_DIRECTORY = '/var/www/java_grader/java_grader/static/posts'
-
-# POST_DIRECTORY = '/vagrant/static/posts'
-
 hash_salt = json.loads(
     open('hash_codes.json', 'r').read())['keys']['cookie_salt']
 api_salt = json.loads(
     open('hash_codes.json', 'r').read())['keys']['api_salt']
+flask_secret_key = json.loads(
+    open('hash_codes.json', 'r').read())['keys']['secret_key']
 
 HASH_CODE_FILE = '/var/www/java_grader/java_grader/hash_codes.json'
 
 # hash_salt = json.loads(
 #     open(HASH_CODE_FILE, 'r').read())['keys']['cookie_salt']
 # api_salt = json.loads(open(HASH_CODE_FILE, 'r').read())['keys']['api_salt']
+# flask_secret_key = json.loads(
+#     open(HASH_CODE_FILE, 'r').read())['keys']['secret_key']
 
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
 TEST_CODE_HEADER = '''
@@ -46,27 +46,24 @@ public static void main(String[] args){\n
 def hash_cookie(user):
     hash_text = hashlib.sha512(user.username + hash_salt).hexdigest()
     cookie_text = '%s|%s' % (user.username, hash_text)
-    print cookie_text
     return cookie_text
 
 
 def setCookie(user):
     cookie_value = hash_cookie(user)
     response = app.make_response(redirect(url_for('main')))
-    response.set_cookie('user_id', value=cookie_value, PATH='/')
+    response.set_cookie('user_id', value=cookie_value)
     return response
 
 
 def check_for_user():
     cookie_value = request.cookies.get('user_id')
-    print cookie_value
     if cookie_value:
         params = cookie_value.split('|')
         if hashlib.sha512(params[0] + hash_salt).hexdigest() == params[1]:
             user = session.query(User).filter(
                 User.username == params[0]).first()
             if user:
-                print 'logged in as ' + user.username
                 return user
 
 
@@ -81,7 +78,6 @@ def check_password(password, user):
 def authenicate(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        print 'Method Decorated'
         user = check_for_user()
         if not user:
             return redirect(url_for('login'))
@@ -268,51 +264,56 @@ def logout():
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
-        return render_template('signup.html')
+        params = {}
+        return render_template('signup.html', params=params)
     else:
-        f_name = request.form['f_name']
-        l_name = request.form['l_name']
-        username = request.form['username'].strip()
+        params = {}
+        params['f_name'] = request.form['f_name']
+        params['l_name'] = request.form['l_name']
+        params['username'] = request.form['username'].strip()
         password = request.form['password']
         verify = request.form['verify']
-        email = request.form['email']
-        userQuery = session.query(User).filter(
-            User.username == username).first()
-        if userQuery:
-            message = 'That username is already in use. ' \
-                'Please choose a different one.'
-            return render_template('signup.html', error_email=message)
-        if not password:
-            message = 'Please enter a valid password'
-            return render_template('signup.html', error_email=message)
-        if password != verify:
-            message = 'You did not verify your password correctly. ' \
-                'Please try again.'
-            return render_template('signup.html', error_email=message)
+        params['email'] = request.form['email']
 
-        if f_name and l_name and username and email:
-            salt = make_salt()
-            hashed_password = hashlib.sha512(password + salt).hexdigest()
-            user = User(f_name=f_name,
-                        l_name=l_name,
-                        email=email,
-                        username=username,
-                        password=hashed_password,
-                        salt=salt,
-                        admin=False)
-            session.add(user)
+        if (not params['f_name'] or not params['l_name'] or not
+                params['username']):
+            params['message'] = 'Please enter your first name, last name, ' \
+                'and a username.'
+            return render_template('signup.html',
+                                   params=params)
+
+        userQuery = session.query(User).filter(
+            User.username == params['username']).first()
+        if userQuery:
+            params['message'] = 'That username is already in use. ' \
+                'Please choose a different one.'
+            return render_template('signup.html', params=params)
+        if not password:
+            params['message'] = 'Please enter a valid password'
+            return render_template('signup.html', params=params)
+        if password != verify:
+            params['message'] = 'Your passwords did not match. ' \
+                'Please try again.'
+            return render_template('signup.html', params=params)
+
+        if not params['email']:
+            params['message'] = 'Please enter a valid email address.'
+            return render_template('signup.html', params=params)
+        salt = make_salt()
+        hashed_password = hashlib.sha512(password + salt).hexdigest()
+        user = User(f_name=params['f_name'],
+                    l_name=params['l_name'],
+                    email=params['email'],
+                    username=params['username'],
+                    password=hashed_password,
+                    salt=salt,
+                    admin=False)
+        session.add(user)
+        session.commit()
+        if(user.id == 1):
+            user.admin = True
             session.commit()
-            if(user.id == 1):
-                user.admin = True
-                session.commit()
-            else:
-                pass
-                # post_location = '%s/%s' % (POST_DIRECTORY,str(user.id))
-                # os.makedirs(post_location)
-            return redirect(url_for('login'))
-        else:
-            message = 'All fields are required.'
-            return render_template('signup.html', error_email=message)
+        return redirect(url_for('login'))
 
 
 @app.route('/admin/assignment/new', methods=['GET', 'POST'])
@@ -547,6 +548,6 @@ def all(user):
 
 
 if __name__ == '__main__':
-    app.secret_key = 'something'
-    app.debug = True
+    app.secret_key = flask_secret_key
+    app.debug = False
     app.run(host='0.0.0.0', port=5000)

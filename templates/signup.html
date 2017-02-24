@@ -5,34 +5,29 @@
 	<form class="all" method="post">
 		<div class="all">
 			<span>First Name:</span>
-			<input type="text" name="f_name" value="{{name}}">
-			{{error_username}}
+			<input type="text" name="f_name" value="{{params['f_name']}}">
 		</div>
 		<div class="all">
 			Last Name:
-			<input class="" type="text" name="l_name" value="{{name}}">
-			{{error_username}}
+			<input class="" type="text" name="l_name" value="{{params['l_name']}}">
 		</div>
 		<div class="all">
 			Username:
-			<input class="" type="text" name="username" value="{{username}}">
-			{{error_username}}
+			<input class="" type="text" name="username" value="{{params['username']}}">
 		</div>
 		<div class="all">
 			Password:
 			<input type="password" name="password">
-			{{error_password}}
 		</div>
 		<div class="all">
 			Verify:
 			<input type="password" name="verify">
-			{{error_verify}}
 		</div>
 		<div class="all">
 			Email:
-			<input type="text" name="email" value="{{email}}">
+			<input type="text" name="email" value="{{params['email']}}">
 			<br>
-			{{error_email}}
+			{{params['message']}}
 		</div><br>
 		<input type="submit" name="submit">
 	</form>
