@@ -88,7 +88,6 @@ def authenicate(f):
 def admin_only(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        print 'admin decorator'
         user = check_for_user()
         if not user or not user.admin:
             return abort(403)
@@ -491,9 +490,9 @@ def resetPassword(user):
 def roster(user):
     if request.method == 'GET':
         users = session.query(User).filter(
-            User.admin == False).order_by(desc(User.l_name)).all() # noqa
+            User.admin == False).order_by(User.l_name).all() # noqa
         admin = session.query(User).filter(
-            User.admin).order_by(desc(User.l_name)).all()
+            User.admin).order_by(User.l_name).all()
         return render_template('roster.html',
                                user=user,
                                users=users,
