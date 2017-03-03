@@ -2,7 +2,41 @@
 
 {% block content %}
 	<h2 class="all">Login to Continue</h2>
-	<form method="post">
+		<form class="form-horizontal" method="post">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Username</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" name="username" value="{{username}}" placeholder="Username">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Password</label>
+				<div class="col-sm-9">
+					<input type="password" class="form-control" name="password" placeholder="Password">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-3 col-sm-9">
+					<input class="btn btn-info" type="submit" value="Login">
+				</div>
+			</div>
+		</form>
+		{% if error %}
+		<div class="all">
+			<div class="alert alert-danger col-sm-offset-1 col-sm-3" role="alert">
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+				<span class="sr-only">Error:</span>
+				{{error}}
+			</div>
+		</div>
+		{% endif %}
+
+{% endblock %}
+
+
+
+
+<!-- <form method="post">
 		<div class="all">
 			Username:
 			<input type="text" name="username" value="{{username}}">
@@ -12,10 +46,8 @@
 			<input type="password" name="password">
 		</div>
 		{{error}}<br>
-		<input type="submit" name="submit"><br>
+		<input class="btn btn-info" type="submit" name="submit"><br>
 		<p>
 			Only your instructor can reset a forgotten password.
 		</p>
-	</form>
-
-{% endblock %}
+	</form> -->

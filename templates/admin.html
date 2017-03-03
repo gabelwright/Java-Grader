@@ -9,13 +9,13 @@
 		<h4 class="all">Description:</h4>
 		<textarea name="desc" rows="10" cols="50">{{params['desc']}}</textarea><br>
 		<strong>Assignment Type:</strong><br>
-		<select name="assign_type">
+		<select class="dropdown" name="assign_type">
 			<option value="0">Main Method</option>
 			<option value="1">Static Methods</option>
 			<option value="2">Public Class</option>
 		</select>
 		<br><br>
-		<input type="submit" value="save">
+		<input class="btn btn-info" type="submit" value="save">
 	</form>
 
 {% endblock %}

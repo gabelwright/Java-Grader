@@ -3,7 +3,7 @@
 {% block content %}
 
 	
-	<h2 class="all">Students:</h2>
+	<h3 class="all">Students:</h3>
 	<ul>
 		{% for a in users %}
 		<li>{{a.f_name}} {{a.l_name}}
@@ -11,14 +11,14 @@
 				<li>Username: {{a.username}}</li>
 				<li>Email: {{a.email}}</li>
 				<form method="POST" action="{{ url_for('deleteUser',user_id=a.id ) }}">
-					<input type="submit" value="delete user">
+					<input class="btn btn-danger btn-xs" type="submit" value="delete user">
 				</form>
 				
 			</ul>
 		</li>
 		{% endfor %}
 	</ul>
-	<h2 class="all">Admin:</h2>
+	<h3 class="all">Admin:</h3>
 	<ul>
 		{% for a in admin %}
 		<li>{{a.f_name}} {{a.l_name}}

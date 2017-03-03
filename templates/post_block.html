@@ -23,16 +23,21 @@
 {% macro results(post) -%}
 
 	<hr class="top-bar all">
-	<h3><u>Submitted by {{post.user.f_name}} {{post.user.l_name}}</u></h3>
-	<h3 class="all">Code Submitted:</h3>
+	<h3 class="all"><u>Submitted by {{post.user.f_name}} {{post.user.l_name}}</u></h3>
+	<div class="all">
+		<button type="button" class="btn btn-info" data-toggle="collapse" data-target="#{{post.id}}">Show Code</button>
+	</div>
+	<div id="{{post.id}}" class="collapse">
+		<h3 class="all">Code Submitted:</h3>
+		<pre class="pre-scrollable code">{{post.code}}</pre>
+	</div>
 	
-	<pre class="code">{{post.code}}</pre>
 	
 	<h3 class="all">Results:</h3>
-	<pre class="code">{{post.results}}</pre>
+	<pre class="pre-scrollable code">{{post.results}}</pre>
 	<section class="all"></section>
 	<form class="half" method='POST' action={{ url_for('assignResultsReview',post_id=post.id) }}>
-		<input type="submit" value="discard results">
+		<input class="btn btn-danger" type="submit" value="discard results">
 	</form>
 
 {%- endmacro %}

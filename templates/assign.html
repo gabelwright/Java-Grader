@@ -18,7 +18,7 @@
 		<ul>
 			{% for t in tests %}
 			<li>
-				<a href="{{ url_for('testView',test_id=t.id) }}">{{t.name}}</a>
+				<h4><a href="{{ url_for('testView',test_id=t.id) }}">{{t.name}}</a></h4>
 			</li>
 			{% endfor %}
 		</ul>
@@ -31,17 +31,18 @@
 			<div class="code">
 				public class {{assign.name}}{<br>
 				&emsp;public static void main(String[] args){<br>
-				&emsp;<textarea class="code-textbox" name="test_code" rows="15" cols="55"></textarea><br>
+				&emsp;<textarea class="code-textbox" name="test_code" rows="20" cols="65"></textarea><br>
 				&emsp;}<br>
 				}
 			</div>
-			<input type="submit" value="add test">
+			<br>
+			<input class="btn btn-info" type="submit" value="add test">
 		</form>
 		
 		<hr class="all">
 		
-		<form class="half text-right" action="{{ url_for('deleteAssign', assign_id=assign.id) }}">
-			<input type="submit" value="delete assignment">
+		<form class="all text-center" action="{{ url_for('deleteAssign', assign_id=assign.id) }}">
+			<input class="btn btn-danger" type="submit" value="delete assignment">
 		</form>
 
 	{% else %}

@@ -3,14 +3,18 @@
 <html>
 <head>
 	<title>Codin Blog</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="{{url_for('static', filename='css/bootstrap.min.css')}}">
+  	<script src="{{url_for('static', filename='js/jquery.min.js')}}"></script>
+  	<script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 	<link href="https://fonts.googleapis.com/css?family=Sahitya|Source+Code+Pro" rel="stylesheet">
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='main_styles.css') }}" />
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static',filename='css/main_styles.css') }}" />
 </head>
 <body>
 	<div class="container">
 	<div class="quarter">
 		<a href="/">
-			<img src="{{ url_for('static',filename='logo.png') }}" width="160">
+			<img src="{{ url_for('static',filename='img/logo.png') }}" width="160">
 		</a>
 	</div>
 	<h1 class="half text-center">Codin Blog</h1>

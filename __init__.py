@@ -3,6 +3,8 @@ from sqlalchemy import desc, and_
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import session
+# from flask_mail import Mail
+# from flask_mail import Message
 from functools import wraps
 import random
 import string
@@ -167,7 +169,7 @@ def assignView(user, assign_id):
                     'instructor.'.format(data['status_code'])
             else:
                 if data['exit_code'] == 0:
-                    print "Exit code: 0"
+                    pass
                 elif data['exit_code'] == 124:
                     data['result'] += '\nMethod took too much time to ' \
                         'complete and was terminated early.'
@@ -328,8 +330,6 @@ def newAssign(user):
         title = request.form['title'].replace(' ', '')
         descrip = request.form['desc']
         assign_type = request.form['assign_type']
-        print 'here is the assign type'
-        print assign_type
 
         if title and descrip:
             assign = Assignment(name=title,
@@ -548,5 +548,5 @@ def all(user):
 
 if __name__ == '__main__':
     app.secret_key = flask_secret_key
-    app.debug = False
+    app.debug = True
     app.run(host='0.0.0.0', port=5000)

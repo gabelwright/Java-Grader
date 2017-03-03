@@ -14,10 +14,11 @@ html {
 }
 
 body{
-	background-image: url("05-white-brick.png");
+	background-image: url("../img/05-white-brick.png");
 	display: flex;
 	flex-direction: column;
 	min-height: 100%;
+	font-size: 16px;
 }
 
 img{
@@ -105,6 +106,7 @@ ul{
 	background: #cccccc;
 	font-family: 'Source Code Pro', monospace;
 	padding: 20px;
+	font-size: 16px;
 }
 
 .code-textbox{
@@ -117,7 +119,8 @@ ul{
     white-space: -pre-wrap;      /* Opera 4-6 */
     white-space: -o-pre-wrap;    /* Opera 7 */
     word-wrap: break-word;
-    font-size: 1.1em;
+    font-size: 0.95em;
+    word-break: normal;
 }
 
 .comment{
@@ -139,6 +142,5 @@ ul{
 .text-center{
 	text-align: center;
 }
-
 
 

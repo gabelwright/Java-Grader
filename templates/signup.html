@@ -2,34 +2,59 @@
 
 {% block content %}
 	<h2 class="all">Please Register below:</h2>
-	<form class="all" method="post">
+		<form class="form-horizontal" method="post">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Name</label>
+				<div class="col-sm-9">
+					<input type="text" name="f_name" class="form-control" value="{{params['f_name']}}" placeholder="First Name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label"></label>
+				<div class="col-sm-9">
+					<input type="text" name="l_name" class="form-control" value="{{params['l_name']}}" placeholder="Last Name">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Username</label>
+				<div class="col-sm-9">
+					<input type="text" name="username" class="form-control" value="{{params['username']}}" placeholder="Username">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Password</label>
+				<div class="col-sm-9">
+					<input type="password" name="password" class="form-control" placeholder="Password">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label"></label>
+				<div class="col-sm-9">
+					<input type="password" name="verify" class="form-control" placeholder="Verify Password">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Email</label>
+				<div class="col-sm-9">
+					<input type="email" name="email" class="form-control" value="{{params['email']}}" placeholder="Email">
+				</div>
+			</div>
+		  
+			<div class="form-group">
+				<div class="col-sm-offset-3 col-sm-9">
+					<input class="btn btn-info" type="submit" value="Sign up">
+				</div>
+			</div>
+		</form>
+		{% if params['message'] %}
 		<div class="all">
-			<span>First Name:</span>
-			<input type="text" name="f_name" value="{{params['f_name']}}">
+			<div class="alert alert-danger col-sm-offset-1 col-sm-3" role="alert">
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+				<span class="sr-only">Error:</span>
+				{{params['message']}}
+			</div>
 		</div>
-		<div class="all">
-			Last Name:
-			<input class="" type="text" name="l_name" value="{{params['l_name']}}">
-		</div>
-		<div class="all">
-			Username:
-			<input class="" type="text" name="username" value="{{params['username']}}">
-		</div>
-		<div class="all">
-			Password:
-			<input type="password" name="password">
-		</div>
-		<div class="all">
-			Verify:
-			<input type="password" name="verify">
-		</div>
-		<div class="all">
-			Email:
-			<input type="text" name="email" value="{{params['email']}}">
-			<br>
-			{{params['message']}}
-		</div><br>
-		<input type="submit" name="submit">
-	</form>
+		{% endif %}
 
 {% endblock %}
+
