@@ -2,20 +2,34 @@
 
 {% block content %}
 
-<h2 class="all">Reset User Password:</h2>
-
-<form method="POST">
-	<p class="all">
-		Username:
-		<input type="text" name="username">
-	</p>
-	<p class="all">
-		New Password:
-		<input type="password" name="password">
-	</p>
-		<input class="btn btn-info" type="submit" value="update password">
-</form>
-<p class="all">{{status_message}}</p>
+	<h2 class="all">Reset User Password</h2>
+		<form class="form-horizontal" method="post">
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Username</label>
+				<div class="col-sm-9">
+					<input type="text" class="form-control" name="username" value="{{username}}" placeholder="Username">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-3 control-label">Password</label>
+				<div class="col-sm-9">
+					<input type="password" class="form-control" name="password" placeholder="New Password">
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-3 col-sm-9">
+					<input class="btn btn-primary" type="submit" value="Login">
+				</div>
+			</div>
+		</form>
+		{% if status_message %}
+		<div class="all">
+			<div class="alert alert-danger col-sm-offset-1 col-sm-3" role="alert">
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+				<span class="sr-only">Error:</span>
+				{{status_message}}
+			</div>
+		</div>
+		{% endif %}
 	
-
 {% endblock %}

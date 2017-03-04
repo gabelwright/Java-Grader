@@ -16,19 +16,16 @@ session = DBSession()
 # 	session.commit()
 
 
+post = session.query(Post).filter(Post.id == 1).first()
+post.created = None
+session.commit()
+
+
 # Demote user from admin
 # USER_TO_DEMOTE = 'username goes here'
 # user = session.query(User).filter(User.username == USER_TO_DEMOTE).first()
 # if user:
 # 	user.admin = False
-# 	session.commit()
-
-
-#Delete user
-# USER_TO_DELETE = 'username goes here'
-# user = session.query(USER).filter(User.username == USER_TO_DELETE).first()
-# if user:
-# 	session.delete(user)
 # 	session.commit()
 
 
@@ -45,7 +42,6 @@ session = DBSession()
 # us = session.query(User).delete()
 # print 'deleted %s rows from Test' % us
 # session.commit()
-
 
 
 # Drop all tables

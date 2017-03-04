@@ -13,7 +13,7 @@
 <body>
 	<div class="container">
 	<div class="quarter">
-		<a href="/">
+		<a href="{{ url_for('main') }}">
 			<img src="{{ url_for('static',filename='img/logo.png') }}" width="160">
 		</a>
 	</div>
@@ -28,12 +28,15 @@
 	</h4>
 	
 	<hr class="all top-bar">
-	<h3 class="half text-center">
-		<a href="{{ url_for('allResults') }}">View Submissions</a><br>
+	<h3 class="third">
+		<a href="{{ url_for('main') }}">Assignments</a><br>
 	</h3>
-	<h3 class="half text-center">
+	<h3 class="third text-center">
+		<a href="{{ url_for('allResults') }}">Submissions</a><br>
+	</h3>
+	<h3 class="third text-right">
 		{% if user and user.admin %}
-			<a href="{{ url_for('adminPage') }}">Admin Page</a><br>
+			<a href="{{ url_for('adminPage') }}">Admin</a><br>
 		{% endif %}
 	</h3>
 	

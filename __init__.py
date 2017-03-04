@@ -121,7 +121,7 @@ def java_api_call(user, raw_code):
 @app.route('/')
 def main():
     user = check_for_user()
-    assign = session.query(Assignment).order_by(desc(Assignment.id)).all()
+    assign = session.query(Assignment).order_by(desc(Assignment.created)).all()
     return render_template('main.html',
                            user=user,
                            assign=assign)
@@ -209,11 +209,11 @@ def assignResults(user, assign_id):
     if user.admin:
         posts = session.query(Post).join(Post.user).filter(
             Post.assignment_id == assign_id).order_by(
-                User.l_name, Post.id.desc())
+                User.l_name, Post.created.desc())
     else:
         posts = session.query(Post).filter(and_(
             Post.assignment_id == assign_id,
-            Post.user_id == user.id)).order_by(desc(Post.id)).all()
+            Post.user_id == user.id)).order_by(desc(Post.created)).all()
 
     return render_template('assignResults.html',
                            user=user,
