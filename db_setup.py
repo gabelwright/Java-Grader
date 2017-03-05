@@ -62,6 +62,6 @@ class Post(Base):
     assignment = relationship(Assignment)
 
 
-# engine = create_engine('postgresql://db:dbpass@localhost/db')
-engine = create_engine('sqlite:///codin-site.db')
+engine = create_engine('postgresql://db:dbpass@localhost/db')
+# engine = create_engine('sqlite:///codin-site.db')
 Base.metadata.create_all(engine)

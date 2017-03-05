@@ -17,26 +17,26 @@ import ast
 
 app = Flask(__name__)
 
-# engine = create_engine('postgresql://db:dbpass@localhost/db')
-engine = create_engine('sqlite:///codin-site.db')
+engine = create_engine('postgresql://db:dbpass@localhost/db')
+# engine = create_engine('sqlite:///codin-site.db')
 Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
 session = DBsession() # noqa
 
-hash_salt = json.loads(
-    open('hash_codes.json', 'r').read())['keys']['cookie_salt']
-api_salt = json.loads(
-    open('hash_codes.json', 'r').read())['keys']['api_salt']
-flask_secret_key = json.loads(
-    open('hash_codes.json', 'r').read())['keys']['secret_key']
+# hash_salt = json.loads(
+#     open('hash_codes.json', 'r').read())['keys']['cookie_salt']
+# api_salt = json.loads(
+#     open('hash_codes.json', 'r').read())['keys']['api_salt']
+# flask_secret_key = json.loads(
+#     open('hash_codes.json', 'r').read())['keys']['secret_key']
 
 HASH_CODE_FILE = '/var/www/java_grader/java_grader/hash_codes.json'
 
-# hash_salt = json.loads(
-#     open(HASH_CODE_FILE, 'r').read())['keys']['cookie_salt']
-# api_salt = json.loads(open(HASH_CODE_FILE, 'r').read())['keys']['api_salt']
-# flask_secret_key = json.loads(
-#     open(HASH_CODE_FILE, 'r').read())['keys']['secret_key']
+hash_salt = json.loads(
+    open(HASH_CODE_FILE, 'r').read())['keys']['cookie_salt']
+api_salt = json.loads(open(HASH_CODE_FILE, 'r').read())['keys']['api_salt']
+flask_secret_key = json.loads(
+    open(HASH_CODE_FILE, 'r').read())['keys']['secret_key']
 
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
 TEST_CODE_HEADER = '''
@@ -154,15 +154,23 @@ def assignView(user, assign_id):
                 raw_code = MAIN_METHOD_HEADER + raw_code + '\n}'
                 data = java_api_call(user.username, raw_code)
             elif assign.int_type == 1:
-                for t in tests:
-                    c_code = t.test_code + raw_code + '\n}'
+                if not tests:
+                    c_code = TEST_CODE_HEADER + '}' + raw_code + '\n}'
                     data = java_api_call(user.username, c_code)
-                    data['result'] += '\n'
+                else:
+                    for t in tests:
+                        c_code = t.test_code + raw_code + '\n}'
+                        data = java_api_call(user.username, c_code)
+                        data['result'] += '\n'
             elif assign.int_type == 2:
-                for t in tests:
-                    c_code = t.test_code + '\n}' + raw_code
+                if not tests:
+                    c_code = TEST_CODE_HEADER + '}\n}' + raw_code
                     data = java_api_call(user.username, c_code)
-                    data['result'] += '\n'
+                else:
+                    for t in tests:
+                        c_code = t.test_code + '\n}' + raw_code
+                        data = java_api_call(user.username, c_code)
+                        data['result'] += '\n'
             if data['status_code'] != 200:
                 data['result'] = 'Status code {0}. Please try again later. ' \
                     'If this continues to happen, please notify your ' \
@@ -194,7 +202,8 @@ def assignResultsReview(user, post_id):
     if request.method == 'GET':
         return render_template('assignReviewResults.html',
                                assign=assign,
-                               post=post)
+                               post=post,
+                               user=user)
     else:
         session.delete(post)
         session.commit()
@@ -224,7 +233,7 @@ def assignResults(user, assign_id):
 @app.route('/assignment/results')
 @authenicate
 def allResults(user):
-    assign = session.query(Assignment).order_by(desc(Assignment.id)).all()
+    assign = session.query(Assignment).order_by(desc(Assignment.created)).all()
     return render_template('allResults.html',
                            user=user,
                            assign=assign)
@@ -548,5 +557,5 @@ def all(user):
 
 if __name__ == '__main__':
     app.secret_key = flask_secret_key
-    app.debug = True
+    app.debug = False
     app.run(host='0.0.0.0', port=5000)
