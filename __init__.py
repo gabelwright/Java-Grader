@@ -23,20 +23,23 @@ Base.metadata.bind = engine
 DBsession = sessionmaker(bind=engine)
 session = DBsession() # noqa
 
-# hash_salt = json.loads(
-#     open('hash_codes.json', 'r').read())['keys']['cookie_salt']
-# api_salt = json.loads(
-#     open('hash_codes.json', 'r').read())['keys']['api_salt']
-# flask_secret_key = json.loads(
-#     open('hash_codes.json', 'r').read())['keys']['secret_key']
+onVM = True
 
-HASH_CODE_FILE = '/var/www/java_grader/java_grader/hash_codes.json'
-
-hash_salt = json.loads(
-    open(HASH_CODE_FILE, 'r').read())['keys']['cookie_salt']
-api_salt = json.loads(open(HASH_CODE_FILE, 'r').read())['keys']['api_salt']
-flask_secret_key = json.loads(
-    open(HASH_CODE_FILE, 'r').read())['keys']['secret_key']
+if onVM:
+    hash_salt = json.loads(
+        open('hash_codes.json', 'r').read())['keys']['cookie_salt']
+    api_salt = json.loads(
+        open('hash_codes.json', 'r').read())['keys']['api_salt']
+    flask_secret_key = json.loads(
+        open('hash_codes.json', 'r').read())['keys']['secret_key']
+else:
+    HASH_CODE_FILE = '/var/www/java_grader/java_grader/hash_codes.json'
+    hash_salt = json.loads(
+        open(HASH_CODE_FILE, 'r').read())['keys']['cookie_salt']
+    api_salt = json.loads(
+        open(HASH_CODE_FILE, 'r').read())['keys']['api_salt']
+    flask_secret_key = json.loads(
+        open(HASH_CODE_FILE, 'r').read())['keys']['secret_key']
 
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
 TEST_CODE_HEADER = '''
@@ -557,5 +560,5 @@ def all(user):
 
 if __name__ == '__main__':
     app.secret_key = flask_secret_key
-    app.debug = False
+    app.debug = onVM
     app.run(host='0.0.0.0', port=5000)

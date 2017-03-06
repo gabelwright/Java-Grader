@@ -8,37 +8,41 @@
 		{{ temp.assignment(assign) }}
 	</div>
 	<h3 class="all">
-		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Previous Submissions</a>
+		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Submissions</a>
 	</h3>
 
 	{% if user.admin %}
-		
 		<a class="all" href="{{ url_for('editAssign',assign_id=assign.id) }}">edit</a>
-		<h3 class="all">Tests:</h3>
-		<ul>
-			{% for t in tests %}
-			<li>
-				<h4><a href="{{ url_for('testView',test_id=t.id) }}">{{t.name}}</a></h4>
-			</li>
-			{% endfor %}
-		</ul>
-		<h3 class="all">Add Test File:</h3>
-		<form method="POST" action="{{ url_for('addTest',assign_id=assign.id) }}">
-			<p>
-			Test Name:
-			<input type="text" name="title">
-			</p>
-			<div class="code">
-				public class {{assign.name}}{<br>
-				&emsp;public static void main(String[] args){<br>
-				&emsp;<textarea class="code-textbox" name="test_code" rows="20" cols="65"></textarea><br>
-				&emsp;}<br>
-				}
-			</div>
-			<br>
-			<input class="btn btn-info" type="submit" value="add test">
-		</form>
+
+		{% if assign.int_type == 1 or assign.int_type == 2 %}
 		
+			<h3 class="all">Tests:</h3>
+			<ul>
+				{% for t in tests %}
+				<li>
+					<h4><a href="{{ url_for('testView',test_id=t.id) }}">{{t.name}}</a></h4>
+				</li>
+				{% endfor %}
+			</ul>
+			<h3 class="all">Add Test File:</h3>
+			<form method="POST" action="{{ url_for('addTest',assign_id=assign.id) }}">
+				<p>
+				Test Name:
+				<input type="text" name="title">
+				</p>
+				<div class="code">
+					public class {{assign.name}}{<br>
+					&emsp;public static void main(String[] args){<br>
+					&emsp;<textarea class="code-textbox" name="test_code" rows="15" cols="55"></textarea><br>
+					&emsp;}<br>
+					}
+				</div>
+				<br>
+				<input class="btn btn-info" type="submit" value="add test">
+			</form>
+		
+		{% endif %}
+
 		<hr class="all">
 
 		<div class="text-center all">
