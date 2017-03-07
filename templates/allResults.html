@@ -6,7 +6,7 @@
 
 	{% for a in assign %}
 		<h3 class="all">
-			<a href="{{ url_for('assignResults', assign_id=a.id) }}">{{a.name}}</a>
+			<a href="{{ url_for('assignResults', assign_id=a.id, sort_id=0) }}">{{a.name}}</a>
 		</h3>
 	{% endfor %}
 

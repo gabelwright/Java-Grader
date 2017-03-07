@@ -8,7 +8,7 @@
 		{{ temp.assignment(assign) }}
 	</div>
 	<h3 class="all">
-		<a href="{{ url_for('assignResults',assign_id=assign.id) }}">Submissions</a>
+		<a href="{{ url_for('assignResults',assign_id=assign.id, sort_id=0) }}">Submissions</a>
 	</h3>
 
 	{% if user.admin %}

@@ -213,15 +213,18 @@ def assignResultsReview(user, post_id):
         return redirect(url_for('assignView', assign_id=assign.id))
 
 
-@app.route('/assignment/results/<int:assign_id>')
+@app.route('/assignment/results/<int:assign_id>/<int:sort_id>')
 @authenicate
-def assignResults(user, assign_id):
+def assignResults(user, assign_id, sort_id):
     assign = session.query(Assignment).filter(
         Assignment.id == assign_id).first()
     if user.admin:
-        posts = session.query(Post).join(Post.user).filter(
-            Post.assignment_id == assign_id).order_by(
-                User.l_name, Post.created.desc())
+        if sort_id == 0:
+            posts = session.query(Post).join(Post.user).filter(
+                Post.assignment_id == assign_id).order_by(
+                    User.l_name, Post.created.desc())
+        elif sort_id == 1:
+            posts = session.query(Post).filter(Post.assignment_id == assign_id).order_by(Post.created.desc())
     else:
         posts = session.query(Post).filter(and_(
             Post.assignment_id == assign_id,
