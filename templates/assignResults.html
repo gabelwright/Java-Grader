@@ -10,6 +10,12 @@
 
 	</div>
 
+	{% if user.admin and sort_id == 0 %}
+		<a href="{{ url_for('assignResults', assign_id=assign.id, sort_id=1) }}">Sort by Date</a>
+	{% elif user.admin and sort_id == 1 %}
+		<a href="{{ url_for('assignResults', assign_id=assign.id, sort_id=0) }}">Sort by Student</a>
+	{% endif %}
+
 	{% if posts %}
 
 		{% for p in posts %}

@@ -243,7 +243,8 @@ def assignResults(user, assign_id, sort_id):
                 Post.assignment_id == assign_id).order_by(
                     User.l_name, Post.created.desc())
         elif sort_id == 1:
-            posts = session.query(Post).filter(Post.assignment_id == assign_id).order_by(Post.created.desc())
+            posts = session.query(Post).filter(
+                Post.assignment_id == assign_id).order_by(Post.created.desc())
     else:
         posts = session.query(Post).filter(and_(
             Post.assignment_id == assign_id,
@@ -252,7 +253,8 @@ def assignResults(user, assign_id, sort_id):
     return render_template('assignResults.html',
                            user=user,
                            posts=posts,
-                           assign=assign)
+                           assign=assign,
+                           sort_id=sort_id)
 
 
 @app.route('/assignment/results')
