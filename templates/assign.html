@@ -77,11 +77,11 @@
 
 	{% else %}
 		{% if assign.int_type == 0 %}
-			{{ block.main_method(assign) }}
+			{{ block.main_method(assign, pre_code) }}
 		{% elif assign.int_type == 1 %}
-			{{ block.static_method(assign) }}
+			{{ block.static_method(assign, pre_code) }}
 		{% elif assign.int_type == 2 %}
-			{{ block.public_class(assign) }}
+			{{ block.public_class(assign, pre_code) }}
 		{% endif %}
 		
 	{% endif %}

@@ -13,6 +13,7 @@ import json
 import hashlib
 import requests
 import ast
+import datetime
 
 
 app = Flask(__name__)
@@ -124,6 +125,8 @@ def java_api_call(user, raw_code):
 @app.route('/')
 def main():
     user = check_for_user()
+    if user:
+        print(user.f_name)
     assign = session.query(Assignment).order_by(desc(Assignment.created)).all()
     return render_template('main.html',
                            user=user,
@@ -136,11 +139,20 @@ def assignView(user, assign_id):
     assign = session.query(Assignment).filter(
         Assignment.id == assign_id).first()
     tests = session.query(Test).filter(Test.assignment_id == assign_id).all()
+    post = session.query(Post).filter(
+        Post.user_id == user.id).filter(
+        Post.assignment_id == assign_id).first()
+
+    pre_code = ''
+    if post:
+        print('pre-post', post.id, post.user_id, user.f_name)
+        pre_code = post.code
     if request.method == 'GET':
         return render_template('assign.html',
                                user=user,
                                assign=assign,
-                               tests=tests)
+                               tests=tests,
+                               pre_code=pre_code)
     else:
         raw_code = request.form['code-block']
         if not raw_code:
@@ -154,8 +166,8 @@ def assignView(user, assign_id):
                                    tests=tests)
         else:
             if assign.int_type == 0:
-                raw_code = MAIN_METHOD_HEADER + raw_code + '\n}'
-                data = java_api_call(user.username, raw_code)
+                c_code = MAIN_METHOD_HEADER + raw_code + '\n}'
+                data = java_api_call(user.username, c_code)
             elif assign.int_type == 1:
                 if not tests:
                     c_code = TEST_CODE_HEADER + '}' + raw_code + '\n}'
@@ -185,12 +197,19 @@ def assignView(user, assign_id):
                     data['result'] += '\nMethod took too much time to ' \
                         'complete and was terminated early.'
                 else:
-                    data['result'] += '\nAn error was found in your code. ' \
-                        'Please double check it before resubmitting.'
-            post = Post(code=raw_code, user=user,
-                        assignment_id=assign_id, results=data['result'])
-            session.add(post)
+                    data['result'] += '\nAn error was found in your code.\n' \
+                        'Please double check it before resubmitting.\n' \
+                        'Exit Code ' + data['exit_code']
+            if not post:
+                post = Post(code=raw_code, user=user,
+                            assignment_id=assign_id, results=data['result'])
+                session.add(post)
+            else:
+                post.code = raw_code
+                post.results = data['result']
+                post.created = datetime.datetime.now()
             session.commit()
+            print('post', post.id)
             return redirect(url_for('assignResultsReview', post_id=post.id))
 
 

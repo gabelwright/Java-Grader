@@ -1,4 +1,4 @@
-{% macro main_method(assign) -%}
+{% macro main_method(assign, pre_code) -%}
 
 	<h3 class="all">Submit Assignment:</h3>
 	<form method="POST">
@@ -8,9 +8,15 @@
 				<br>
 			</span>
 
+			{% if pre_code %}
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{pre_code}}</textarea><br>
+			{% else %}
 			<textarea class="code-textbox" name="code-block" rows="15" cols="55">public static void main(String[] args){
 
-}</textarea><br>
+}
+
+</textarea><br>
+			{% endif %}
 			<span class="all">}</span>
 		</div><br>
 		<input class="btn btn-primary" type="submit" value="submit assignment">
@@ -18,7 +24,7 @@
 
 {%- endmacro %}
 
-{% macro static_method(assign) -%}
+{% macro static_method(assign, pre_code) -%}
 
 	<h3 class="all">Submit Assignment:</h3>
 	<form method="POST">
@@ -41,7 +47,7 @@
 
 {%- endmacro %}
 
-{% macro public_class(assign) -%}
+{% macro public_class(assign, pre_code) -%}
 
 	<h3 class="all">Submit Assignment:</h3>
 	<form method="POST">
@@ -50,13 +56,15 @@
 				
 				<br>
 			</span>
-
+			{% if pre_code %}
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{pre_code}}</textarea>
+			{% else %}
 			<textarea class="code-textbox" name="code-block" rows="15" cols="55">class {{assign.name}}{
 
 
 }</textarea>
+			{% endif %}
 			<br>
-			<span class="all">}</span>
 		</div><br>
 		<input class="btn btn-primary" type="submit" value="submit assignment">
 	</form>
