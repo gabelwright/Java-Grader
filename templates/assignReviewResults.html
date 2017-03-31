@@ -7,7 +7,7 @@
 	<div class="panel-group all" id="accordion">
 		{{ temp.assignment(assign) }}
 	</div>
-	{{ temp.results(post) }}
+	{{ temp.results(user, post) }}
 
 	<form method='GET' action="{{ url_for('main') }}">
 		<input class="btn btn-success" type="submit" value="keep results">

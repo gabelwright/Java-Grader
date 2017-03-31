@@ -127,6 +127,10 @@ ul{
 	font-size: 1.2em
 }
 
+.feedback, .feedback-box{
+	padding-bottom: 20px;
+}
+
 .delete-button,.edit-button,.like-button{
 	font-size: 1em;
 }

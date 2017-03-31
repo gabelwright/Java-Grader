@@ -1,4 +1,4 @@
-{% macro main_method(assign, pre_code) -%}
+{% macro main_method(assign, post) -%}
 
 	<h3 class="all">Submit Assignment:</h3>
 	<form method="POST">
@@ -8,8 +8,8 @@
 				<br>
 			</span>
 
-			{% if pre_code %}
-			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{pre_code}}</textarea><br>
+			{% if post %}
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{post.code}}</textarea><br>
 			{% else %}
 			<textarea class="code-textbox" name="code-block" rows="15" cols="55">public static void main(String[] args){
 
@@ -24,7 +24,7 @@
 
 {%- endmacro %}
 
-{% macro static_method(assign, pre_code) -%}
+{% macro static_method(assign, post) -%}
 
 	<h3 class="all">Submit Assignment:</h3>
 	<form method="POST">
@@ -37,7 +37,7 @@
 				&emsp;}<br>
 			</span>
 
-			<textarea class="code-textbox" name="code-block" rows="15" cols="55"></textarea>
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{post.code}}</textarea>
 			<br>
 			<span class="all">}</span>
 		</div><br>
@@ -47,7 +47,7 @@
 
 {%- endmacro %}
 
-{% macro public_class(assign, pre_code) -%}
+{% macro public_class(assign, post) -%}
 
 	<h3 class="all">Submit Assignment:</h3>
 	<form method="POST">
@@ -56,8 +56,8 @@
 				
 				<br>
 			</span>
-			{% if pre_code %}
-			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{pre_code}}</textarea>
+			{% if post %}
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{post.code}}</textarea>
 			{% else %}
 			<textarea class="code-textbox" name="code-block" rows="15" cols="55">class {{assign.name}}{
 
@@ -73,8 +73,67 @@
 {%- endmacro %}
 
 
+{% macro admin_assign(user, assign, tests) -%}
 
+<a class="all" href="{{ url_for('editAssign',assign_id=assign.id) }}">edit</a>
 
+{% if assign.int_type == 1 or assign.int_type == 2 %}
 
+	<h3 class="all">Tests:</h3>
+	<ul>
+		{% for t in tests %}
+		<li>
+			<h4><a href="{{ url_for('testView',test_id=t.id) }}">{{t.name}}</a></h4>
+		</li>
+		{% endfor %}
+	</ul>
+	<h3 class="all">Add Test File:</h3>
+	<form method="POST" action="{{ url_for('addTest',assign_id=assign.id) }}">
+		<p>
+		Test Name:
+		<input type="text" name="title">
+		</p>
+		<div class="code">
+			public class {{assign.name}}{<br>
+			&emsp;public static void main(String[] args){<br>
+			&emsp;<textarea class="code-textbox" name="test_code" rows="15" cols="55"></textarea><br>
+			&emsp;}<br>
+			}
+		</div>
+		<br>
+		<input class="btn btn-info" type="submit" value="add test">
+	</form>
+
+{% endif %}
+
+<hr class="all">
+
+<div class="text-center all">
+	<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#myModal">
+	  	Delete Assignment
+	</button>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Confirm</h4>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong>{{assign.name}}</strong>?  All data including student posts, results, and tests associated with this assignment will be permanently deleted.
+      </div>
+      <div class="modal-footer">
+      	<form method="POST" action="{{ url_for('deleteAssign', assign_id=assign.id) }}">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+	        <button type="submit" formmethod="POST" class="btn btn-danger">Delete</button>
+	    </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+{%- endmacro %}
 
 

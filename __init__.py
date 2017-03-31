@@ -143,16 +143,12 @@ def assignView(user, assign_id):
         Post.user_id == user.id).filter(
         Post.assignment_id == assign_id).first()
 
-    pre_code = ''
-    if post:
-        print('pre-post', post.id, post.user_id, user.f_name)
-        pre_code = post.code
     if request.method == 'GET':
         return render_template('assign.html',
                                user=user,
                                assign=assign,
                                tests=tests,
-                               pre_code=pre_code)
+                               post=post)
     else:
         raw_code = request.form['code-block']
         if not raw_code:
@@ -199,18 +195,22 @@ def assignView(user, assign_id):
                 else:
                     data['result'] += '\nAn error was found in your code.\n' \
                         'Please double check it before resubmitting.\n' \
-                        'Exit Code ' + data['exit_code']
+                        'Exit Code ' + str(data['exit_code'])
             if not post:
-                post = Post(code=raw_code, user=user,
-                            assignment_id=assign_id, results=data['result'])
+                post = Post(code=raw_code,
+                            user=user,
+                            assignment_id=assign_id,
+                            results=data['result'],
+                            notes='')
                 session.add(post)
             else:
                 post.code = raw_code
                 post.results = data['result']
                 post.created = datetime.datetime.now()
+                if post.notes and '(Previous Submission)' not in post.notes:
+                    post.notes = '(Previous Submission) ' + post.notes
             session.commit()
-            print('post', post.id)
-            return redirect(url_for('assignResultsReview', post_id=post.id))
+            return redirect(url_for('assignView', assign_id=assign_id))
 
 
 @app.route('/assignment/review/<int:post_id>', methods=['GET', 'POST'])
@@ -255,6 +255,21 @@ def assignResults(user, assign_id, sort_id):
                            posts=posts,
                            assign=assign,
                            sort_id=sort_id)
+
+
+@app.route('/assignment/postfeedback/<int:post_id>', methods=["POST"])
+@admin_only
+def postFeedback(user, post_id):
+    post = session.query(Post).filter(Post.id == post_id).first()
+    # form_id = 'feedback_box_%s' % post_id
+    notes = request.form['data']
+    print('notes', notes)
+    if post:
+        post.notes = notes
+        session.commit()
+        return notes
+    else:
+        print('no post')
 
 
 @app.route('/assignment/results')
