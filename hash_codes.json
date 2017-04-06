@@ -1,0 +1,7 @@
+{"keys":
+	{
+		"cookie_salt":"INSERT_NEW_KEY_HERE",
+		"api_salt":"INSERT_NEW_KEY_HERE",
+		"secret_key":"INSERT_NEW_KEY_HERE"
+	}
+}
