@@ -108,6 +108,8 @@ With this result, the instructor can then focus on efficiency and best practices
 
 Java Grader consists to two separate flask applications, the main program and the API.  For security reasons, an API call is made to a separate server to compile and run code in an isolated, clean environment.  Both applications can be setup in a similar fashion to any other flask applications.  Just be sure to install Java on the server that handles the API.  For step by step directions on how to setup a flask application on a Virtual Private Server, [see this guide.](https://github.com/acronymcreations/Linux-Server-Setup)
 
+Contained within this repo is a blank hash_codes.json file.  This file should be filled in with three unique security keys that are random and very complex.  These keys are used for validation and must be kept private and secure.  Additionally, a second copy of this file should be placed on the Java-API server as well.
+
 
 
 
