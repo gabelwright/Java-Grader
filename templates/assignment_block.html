@@ -73,6 +73,29 @@
 {%- endmacro %}
 
 
+{% macro plain_text(assign, post) -%}
+
+	<h3 class="all">Submit Assignment:</h3>
+	<form method="POST">
+		<div class="code">
+			<span class="all">
+				
+				<br>
+			</span>
+			{% if post %}
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55">{{post.code}}</textarea>
+			{% else %}
+			<textarea class="code-textbox" name="code-block" rows="15" cols="55"></textarea>
+			{% endif %}
+			<br>
+		</div><br>
+		<input class="btn btn-primary" type="submit" value="submit assignment">
+	</form>
+
+
+{%- endmacro %}
+
+
 {% macro admin_assign(user, assign, tests) -%}
 
 <a class="all" href="{{ url_for('editAssign',assign_id=assign.id) }}">edit</a>

@@ -182,6 +182,11 @@ def assignView(user, assign_id):
                         c_code = t.test_code + '\n}' + raw_code
                         data = java_api_call(user.username, c_code)
                         data['result'] += '\n'
+            elif assign.int_type == 3:
+                data = {}
+                data['result'] = 'Your post has been saved.'
+                data['exit_code'] = 0
+                data['status_code'] = 200
             if data['status_code'] != 200:
                 data['result'] = 'Status code {0}. Please try again later. ' \
                     'If this continues to happen, please notify your ' \

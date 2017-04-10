@@ -27,6 +27,8 @@
 			{{ block.static_method(assign, post) }}
 		{% elif assign.int_type == 2 %}
 			{{ block.public_class(assign, post) }}
+		{% elif assign.int_type == 3 %}
+			{{ block.plain_text(assign, post) }}
 		{% endif %}
 		
 	{% endif %}
