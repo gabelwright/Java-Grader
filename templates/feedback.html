@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+{% for p in posts %}
+
+	<h4 class="half"><strong>{{p.user.f_name}} {{p.user.l_name}}</strong></h4>
+	<span class="half text-right">{{ p.created.strftime('%b %d, %Y, %I:%M %p') }}</span>
+	<strong class="all">Feedback: </strong>
+	<span class="half">{{p.notes}}</span>
+	<hr class="all top-bar">
+
+{% endfor %}
+
+{% endblock content %}

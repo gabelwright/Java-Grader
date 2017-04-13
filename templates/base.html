@@ -32,12 +32,12 @@
 		<a href="{{ url_for('main') }}">Assignments</a><br>
 	</h3>
 	{% if user and user.admin %}
-	<h3 class="third text-center">
-		<a href="{{ url_for('allResults') }}">Submissions</a><br>
-	</h3>
-	<h3 class="third text-right">
-			<a href="{{ url_for('adminPage') }}">Admin</a><br>
-	</h3>
+		<h3 class="third text-center">
+			<a href="{{ url_for('allResults') }}">Submissions</a><br>
+		</h3>
+		<h3 class="third text-right">
+				<a href="{{ url_for('adminPage') }}">Admin</a><br>
+		</h3>
 	{% endif %}
 	
 	<hr class="all top-bar">

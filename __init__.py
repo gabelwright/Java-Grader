@@ -277,6 +277,20 @@ def postFeedback(user, post_id):
         print('no post')
 
 
+@app.route('/assignment/results/feedback/<int:assign_id>')
+@admin_only
+def viewFeedback(user, assign_id):
+    assign = session.query(Assignment).filter(
+        Assignment.id == assign_id).first()
+    posts = session.query(Post).join(Post.user).filter(
+        Post.assignment_id == assign_id).order_by(
+        User.l_name, Post.created.desc())
+    return render_template('feedback.html',
+                           user=user,
+                           posts=posts,
+                           assign=assign)
+
+
 @app.route('/assignment/results')
 @authenicate
 def allResults(user):
