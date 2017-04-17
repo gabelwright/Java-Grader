@@ -1,12 +1,29 @@
+{% import 'post_block.html' as temp %}
+
 {% extends 'base.html' %}
 
 {% block content %}
+
+<div class="panel-group all" id="accordion">
+	
+	{{ temp.assignment(assign) }}
+
+</div>
+
+{% if sort_id == 0 %}
+	<a class="half" href="{{ url_for('viewFeedback', assign_id=assign.id, sort_id=1) }}">Sort by Date</a>
+{% elif sort_id == 1 %}
+	<a class="half" href="{{ url_for('viewFeedback', assign_id=assign.id, sort_id=0) }}">Sort by Student</a>
+{% endif %}
+
+<a class="half text-right" href="{{ url_for('assignResults', assign_id=assign.id, sort_id=sort_id) }}">All Results</a>
+
+<hr class="all top-bar">
 
 {% for p in posts %}
 
 	<h4 class="half"><strong>{{p.user.f_name}} {{p.user.l_name}}</strong></h4>
 	<span class="half text-right">{{ p.created.strftime('%b %d, %Y, %I:%M %p') }}</span>
-	<strong class="all">Feedback: </strong>
 	<span class="half">{{p.notes}}</span>
 	<hr class="all top-bar">
 

@@ -16,7 +16,7 @@
 		<a class="half" href="{{ url_for('assignResults', assign_id=assign.id, sort_id=0) }}">Sort by Student</a>
 	{% endif %}
 
-	<a class="half text-right" href="{{ url_for('viewFeedback', assign_id=assign.id) }}">Feedback Only</a>
+	<a class="half text-right" href="{{ url_for('viewFeedback', assign_id=assign.id, sort_id=sort_id) }}">Feedback Only</a>
 
 	{% if posts %}
 

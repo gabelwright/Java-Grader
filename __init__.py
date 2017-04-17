@@ -246,7 +246,7 @@ def assignResults(user, assign_id, sort_id):
         if sort_id == 0:
             posts = session.query(Post).join(Post.user).filter(
                 Post.assignment_id == assign_id).order_by(
-                    User.l_name, Post.created.desc())
+                    User.l_name, User.f_name)
         elif sort_id == 1:
             posts = session.query(Post).filter(
                 Post.assignment_id == assign_id).order_by(Post.created.desc())
@@ -277,18 +277,23 @@ def postFeedback(user, post_id):
         print('no post')
 
 
-@app.route('/assignment/results/feedback/<int:assign_id>')
+@app.route('/assignment/results/feedback/<int:assign_id>/<int:sort_id>')
 @admin_only
-def viewFeedback(user, assign_id):
+def viewFeedback(user, assign_id, sort_id):
     assign = session.query(Assignment).filter(
         Assignment.id == assign_id).first()
-    posts = session.query(Post).join(Post.user).filter(
-        Post.assignment_id == assign_id).order_by(
-        User.l_name, Post.created.desc())
+    if sort_id == 0:
+        posts = session.query(Post).join(Post.user).filter(
+            Post.assignment_id == assign_id).order_by(
+            User.l_name, User.f_name)
+    elif sort_id == 1:
+        posts = session.query(Post).filter(
+            Post.assignment_id == assign_id).order_by(Post.created.desc())
     return render_template('feedback.html',
                            user=user,
                            posts=posts,
-                           assign=assign)
+                           assign=assign,
+                           sort_id=sort_id)
 
 
 @app.route('/assignment/results')
