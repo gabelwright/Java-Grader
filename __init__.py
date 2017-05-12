@@ -343,6 +343,7 @@ def signup():
         params = {}
         return render_template('signup.html', params=params)
     else:
+        print(request.form.items())
         params = {}
         params['f_name'] = request.form['f_name']
         params['l_name'] = request.form['l_name']
