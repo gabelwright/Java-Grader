@@ -3,6 +3,8 @@ from sqlalchemy import desc, and_
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from flask import session
+from flask_admin.contrib.sqla import ModelView
+from flask_admin import Admin
 # from flask_mail import Mail
 # from flask_mail import Message
 from functools import wraps
@@ -41,6 +43,20 @@ else:
         open(HASH_CODE_FILE, 'r').read())['keys']['api_salt']
     flask_secret_key = json.loads(
         open(HASH_CODE_FILE, 'r').read())['keys']['secret_key']
+
+class UserView(ModelView):
+    can_edit = False
+    can_view_details = True
+    column_exclude_list = ['password', 'salt']
+
+admin = Admin(app, name='microblog', template_mode='bootstrap3')
+admin.add_view(UserView(User, session))
+admin.add_view(ModelView(Post, session))
+admin.add_view(ModelView(Test, session))
+admin.add_view(ModelView(Assignment, session))
+
+
+
 
 MAIN_METHOD_HEADER = 'public class CodinBlog{\n\n'
 TEST_CODE_HEADER = '''
@@ -597,13 +613,13 @@ def deleteUser(user, user_id):
     return redirect(url_for('roster'))
 
 
-@app.route('/admin', methods=['GET', 'POST'])
-@admin_only
-def adminPage(user):
-    if request.method == 'GET':
-        return render_template('adminPage.html', user=user)
-    else:
-        pass
+# @app.route('/admin', methods=['GET', 'POST'])
+# @admin_only
+# def adminPage(user):
+#     if request.method == 'GET':
+#         return render_template('adminPage.html', user=user)
+#     else:
+#         pass
 
 
 @app.route('/all')
